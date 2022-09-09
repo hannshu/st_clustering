@@ -12,6 +12,7 @@
 |8|Giotto|BMC Genome Biology|[Giotto](https://doi.org/10.1186/s13059-021-02286-2)|NULL|[tutorial]()|  
 |9|TransformerST|bioRxiv|[TransformerST](https://doi.org/10.1101/2022.08.11.503261)|NULL|[tutorial]()|  
 |10|FICT|Bioinformatics|[FICT](https://doi.org/10.1093/bioinformatics/btab704)|NULL|[tutorial]()|  
+|11|scGNN|Nature Communications|[scGNN](https://doi.org/10.1038/s41467-021-22197-x)|NULL|[tutorial]()|  
 
 ## Leiden
 
@@ -76,6 +77,8 @@ $\sum^N_{i=1} || x_i - \hat{h}^0_i ||_2$
 ## FICT
   
 
+
+## scGNN
 
 
 # 目前整理到可以使用的数据集
