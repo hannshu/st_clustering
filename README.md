@@ -1,12 +1,22 @@
 # 整理到的对空间转录组进行聚类分析的算法
 
+|    | model | journal | paper | status | tutorial | note  
+| -- | ----- | ------- | ----- | ------ | -------- | ---- 
+|1|Leiden|Scientific Reports|[Leiden](https://doi.org/10.1038/s41598-019-41695-z)|NULL|[tutorial]()|  
+|2|STAGATE|Nature Communications|[STAGATE](https://doi.org/10.1038/s41467-022-29439-6)|*|[tutorial](./STAGATE_pyG/train.ipynb)|只有tf实现中可以使用alpha，torch实现中没有这个功能  
+|3|CCST|Nature Computational Science|[CCST](https://doi.org/10.1038/s43588-022-00266-5)|NULL|[tutorial]()|  
+|4|SpaGCN|Nature Methods|[SpaGCN](https://doi.org/10.1038/s41592-021-01255-8)|NULL|[tutorial]()|  
+|5|SEDR|-|[SEDR](https://doi.org/10.21203/rs.3.rs-665505/v1)|NULL|[tutorial]()|  
+|6|BayesSpace|Nature Biotechnology|[BayesSpace](https://doi.org/10.1038/s41587-021-00935-2)|NULL|[tutorial]()|  
+|7|stLearn|bioRxiv|[stLearn](https://doi.org/10.1101/2020.05.31.125658)|NULL|[tutorial]()|  
+|8|Giotto|BMC Genome Biology|[Giotto](https://doi.org/10.1186/s13059-021-02286-2)|NULL|[tutorial]()|  
+|9|TransformerST|bioRxiv|[TransformerST](https://doi.org/10.1101/2022.08.11.503261)|NULL|[tutorial]()|  
+|10|FICT|Bioinformatics|[FICT](https://doi.org/10.1093/bioinformatics/btab704)|NULL|[tutorial]()|  
+
 ## Leiden
-[Leiden(ScanPy)](https://doi.org/10.1038/s41598-019-41695-z)   
 
 
 ## STAGATE
-[STAGATE](https://doi.org/10.1038/s41598-019-41695-z)    
-[tutorial](./STAGATE_pyG/train.ipynb)  
 ![img](./STAGATE_pyG/STAGATE_Overview.png)  
 使用类似于自编码器的结构，在聚合邻边信息时引入attention  
 
@@ -35,39 +45,36 @@ $$
 主要思想是经过编码/解码后得到的值应该和原值类似，所以loss函数设置为前后两向量的距离  
 $\sum^N_{i=1} || x_i - \hat{h}^0_i ||_2$
 
-备注: 只有tf实现中可以使用alpha，torch实现中没有这个功能
-
-
 ## CCST
-[CCST](https://doi.org/10.21203/rs.3.rs-990495/v1)  
+
 
 
 ## SpaGCN
-[SpaGCN](https://doi.org/10.21203/rs.3.rs-990495/v1)  
+
 
 
 ## SEDR
-[SEDR](https://doi.org/10.21203/rs.3.rs-665505/v1)  
+
 
 
 ## BayesSpace
-[BayesSpace](https://doi.org/10.1101/2020.05.31.125658)  
+
 
 
 ## stLearn
-[stLearn](https://doi.org/10.1101/2020.05.31.125658)  
+
 
 
 ## Giotto
-[Giotto](https://doi.org/10.21203/rs.3.rs-990495/v1)  
+
 
 
 ## TransformerST
-[TransformerST](https://doi.org/10.1101/2022.08.11.503261)  
+
 
 
 ## FICT
-[FICT](https://doi.org/10.1093/bioinformatics/btab704)    
+  
 
 
 
