@@ -4,7 +4,7 @@
 | -- | ----- | ------- | ----- | ------ | -------- | ---- 
 |1|Leiden|Scientific Reports|[DOI](https://doi.org/10.1038/s41598-019-41695-z)|NULL|[tutorial]()|  
 |2|STAGATE|Nature Communications|[DOI](https://doi.org/10.1038/s41467-022-29439-6)|*|[tutorial](./2_STAGATE_pyG/train.ipynb)|只有tf实现中可以使用alpha，torch实现中没有这个功能  
-|3|CCST|Nature Computational Science|[DOI](https://doi.org/10.1038/s43588-022-00266-5)|NULL|[tutorial]()|  
+|3|CCST|Nature Computational Science|[DOI](https://doi.org/10.1038/s43588-022-00266-5)|*|[tutorial](./3_CCST/train.ipynb)|  
 |4|SpaGCN|Nature Methods|[DOI](https://doi.org/10.1038/s41592-021-01255-8)|NULL|[tutorial]()|  
 |5|SEDR|-|[DOI](https://doi.org/10.21203/rs.3.rs-665505/v1)|NULL|[tutorial]()|  
 |6|BayesSpace|Nature Biotechnology|[DOI](https://doi.org/10.1038/s41587-021-00935-2)|NULL|[tutorial]()|  
@@ -75,7 +75,45 @@ DGI的主要思想是*最大化***混淆图生成的向量**和图向量间的�
 秩和检验
 
 ## SpaGCN
+![img](./4_SpaGCN/workflow.jpg)  
 
+- 生成图:  
+通过计算节点间的欧几里得距离来生成一个带权重的图，其中u, v之间的权重计算公式为:  
+$$
+w(u, v) = exp (-\frac{d(u, v)^2}{2l^2})
+$$
+这里的$l$是一个用来控制图权重的超参数，通过调整$l$让每个节点的连接边的权重和相似。  
+在图生成时，可以加入组织学(histology)信息，将每个节点构成一个三维的节点：  
+对于每个节点，考虑组织学图片中，**以这个节点为中心**的50*50内所有像素点对rgb信息，计算第三个维度z的公式如下  
+$$
+z_v = \frac{mean(r) * var(r) + mean(g) * var(g) + mean(b) * var(b)}{var(r) + var(g) + var(b)}\\
+$$
+rescale:
+$$
+z^*_v = \frac{z_v + mean(z)}{std(z)} * \max(std(x), std(y)) * s
+$$
+其中mean表示均值，var表示方差，std表示标准差，这里的s是一个用于平衡z与x, y大小关系的超参数。  
+得到第三个维度z后，计算欧几里得距离，并使用最上面的公式计算边权重。
+
+- GCN:  
+在进行节点信息聚合之前，先对网络进行一次聚类(Louvain或KMeans)并得到每个类的中心特征(类中所有节点特征的平均值)  
+使用传统的GCN聚合邻居边的信息  
+loss:  
+首先计算每个节点和每个聚类中心的距离(可以认为是节点i是聚类j的概率):  
+$$
+q_{ij} = \frac{(1 + h_i - \mu^2_j)^{-1}}{\sum^K_{j'=1}(1 + h_i - \mu^2_{j'})^{-1}}
+$$
+设置辅助目标分布函数:  
+$$
+p_{ij} = \frac{q_{ij} / \sum^N_{i = 1} q_{ij}}{\sum^K_{j' = 1} (q_{ij'} / \sum^N_{i = 1} q_{ij'})}
+$$
+通过最小化这两个函数的KL散度来更新GCN中的参数以及聚类中心。  
+$$
+L = KL(P||Q) = \sum^N_i \sum^K_j p_{ij}\log\frac{p_{ij}}{q_{ij}}
+$$
+
+- 查找SVG:  
+秩和检验
 
 
 ## SEDR
@@ -115,7 +153,8 @@ DGI的主要思想是*最大化***混淆图生成的向量**和图向量间的�
 |4|scRNA-seq mouse cortex|squidpy|[DOI](https://doi.org/10.1038/s41586-018-0654-5)|*|21697*36826|  
 |5|10x Visium (DLPFC dataset)|spatialLIBD|[DOI](https://doi.org/10.1186/s12864-022-08601-w)|*|approx. 3460*33538 each|12 slices  
 |6|10x Genomics Adult Mouse Brain Section 1 (Coronal)|10x Genomics|[10x Genomics](https://www.10xgenomics.com/resources/datasets/adult-mouse-brain-section-1-coronal-stains-dapi-anti-neu-n-1-standard-1-1-0)|-|2903*32285|  
-|7|Slide-seqV2|BROAD INSTITUTE|[BROAD INSTITUTE](https://singlecell.broadinstitute.org/single_cell/study/SCP815/highly-sensitive-spatial-transcriptomics-at-near-cellular-resolution-with-slide-seqv2#study-summary)|-|21724*21220|mouse olfactory bulb  
+|7|Mouse Brain Serial Section 1 (Sagittal-Posterior)|10x Genomics|[10x Genomics](https://support.10xgenomics.com/spatial-gene-expression/datasets/1.0.0/V1_Mouse_Brain_Sagittal_Posterior)||3353*31053|
+|8|Slide-seqV2|BROAD INSTITUTE|[BROAD INSTITUTE](https://singlecell.broadinstitute.org/single_cell/study/SCP815/highly-sensitive-spatial-transcriptomics-at-near-cellular-resolution-with-slide-seqv2#study-summary)|-|21724*21220|mouse olfactory bulb  
 
 ## squidpy pre-processed
 所有经过squidpy预处理的数据集均附带有手工标记，文件格式为```.h5ad```，一般保存在```adata.obsm['spatial']```中，squidpy中集成了内置的读取方法来读取数据集  
@@ -137,9 +176,14 @@ Ann_df.columns = ['Ground Truth']
 adata.obs['Ground Truth'] = Ann_df.loc[adata.obs_names, 'Ground Truth']
 ```
 
-## 10x Visium Mouse Brain Section 1
+## 10x Genomic
 ``` python
-adata = sc.read_visium(path=os.path.join('dataset', 'Adult_Mouse_Brain_Section_1'))
+# Coronal:
+adata = sc.read_visium(path=os.path.join('dataset', 'Adult_Mouse_Brain', 'Coronal'))
+adata.var_names_make_unique()
+
+# Sagittal-Posterior:
+adata = sc.read_visium(path=os.path.join('dataset', 'Adult_Mouse_Brain', 'Sagittal-Posterior'))
 adata.var_names_make_unique()
 ```
 
