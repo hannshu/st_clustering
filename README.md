@@ -3,7 +3,7 @@
 |    | model | journal | paper | status | tutorial | note  
 | -- | ----- | ------- | ----- | ------ | -------- | ---- 
 |1|Leiden|Scientific Reports|[DOI](https://doi.org/10.1038/s41598-019-41695-z)|NULL|[tutorial]()|  
-|2|STAGATE|Nature Communications|[DOI](https://doi.org/10.1038/s41467-022-29439-6)|*|[tutorial](./STAGATE_pyG/train.ipynb)|只有tf实现中可以使用alpha，torch实现中没有这个功能  
+|2|STAGATE|Nature Communications|[DOI](https://doi.org/10.1038/s41467-022-29439-6)|*|[tutorial](./2_STAGATE_pyG/train.ipynb)|只有tf实现中可以使用alpha，torch实现中没有这个功能  
 |3|CCST|Nature Computational Science|[DOI](https://doi.org/10.1038/s43588-022-00266-5)|NULL|[tutorial]()|  
 |4|SpaGCN|Nature Methods|[DOI](https://doi.org/10.1038/s41592-021-01255-8)|NULL|[tutorial]()|  
 |5|SEDR|-|[DOI](https://doi.org/10.21203/rs.3.rs-665505/v1)|NULL|[tutorial]()|  
@@ -18,7 +18,7 @@
 
 
 ## STAGATE
-![img](./STAGATE_pyG/STAGATE_Overview.png)  
+![img](./2_STAGATE_pyG/STAGATE_Overview.png)  
 使用类似于自编码器的结构，在聚合邻边信息时引入attention  
 
 - 生成图:  
@@ -43,12 +43,36 @@ att_{ij} = (1 - \alpha)att^{spatial}_{ij} + \alpha att^{aware}_{ij}
 $$
 
 - loss:  
-主要思想是经过编码/解码后得到的值应该和原值类似，所以loss函数设置为前后两向量的距离  
-$\sum^N_{i=1} || x_i - \hat{h}^0_i ||_2$
+主要思想是经过编码/解码后得到的值应该和原值类似，所以loss函数设置为前后两向量的距离$\sum^N_{i=1} || x_i - \hat{h}^0_i ||_2$
 
 ## CCST
+![img](./3_CCST/figure1.png)  
+使用DGI模型对空间转录组数据进行处理    
 
+- 生成图:  
+给定超参数$d_{thres}$，计算每两个节点间的距离，如果小于超参数，则生成边，否则不生成边。  
+为了平衡连接边的权重和节点的基因表达信息，引入超参数$\lambda$，修正邻接矩阵$A = \lambda * I + (1 - \lambda) * A_0$  
 
+- 数据预处理:   
+对于每个数据集，需要删除表达量较低的基因，对每个spot的基因表达进行归一化。
+
+- GNN:  
+采用DGI模型，loss函数：
+$$Loss = \sum^N_{i = 1} E_{X, A}[\log D(h_i, s)] + E_{X, \overline{A}}[\log D(\overline{h_i}, s)]$$ 
+其中:  
+X为每个细胞的基因表达矩阵。  
+A为正确图的邻接矩阵。  
+$\overline{A}$为生成的混淆图的邻接矩阵(这里混淆图的边是随机生成的)。  
+$h_i$是正常图经过GCN后得到的embedding vector。  
+$\overline{h_i}$是混淆图经过同一个GCN后得到的embedding vector。  
+s是正常图经过GCN后得到所有embedding vector的平均值(用来代表整张图)。  
+DGI的主要思想是*最大化***混淆图生成的向量**和图向量间的距离，同时*最小化***正常图生成的向量**和图向量之间的距离。  
+
+- 聚类:  
+得到embedding vector后先通过PCA进行降维，然后使用umap进行聚类和可视化。  
+
+- Differential gene expression analysis:  
+秩和检验
 
 ## SpaGCN
 
@@ -94,7 +118,7 @@ $\sum^N_{i=1} || x_i - \hat{h}^0_i ||_2$
 |7|Slide-seqV2|BROAD INSTITUTE|[BROAD INSTITUTE](https://singlecell.broadinstitute.org/single_cell/study/SCP815/highly-sensitive-spatial-transcriptomics-at-near-cellular-resolution-with-slide-seqv2#study-summary)|-|21724*21220|mouse olfactory bulb  
 
 ## squidpy pre-processed
-所有经过squidpy预处理的数据集均附带有手工标记，文件格式为```.h5ad```，一般保存在```adata.obsm['spatial']```或是```adata.obsm['cluster']```中，squidpy中集成了内置的读取方法来读取数据集  
+所有经过squidpy预处理的数据集均附带有手工标记，文件格式为```.h5ad```，一般保存在```adata.obsm['spatial']```中，squidpy中集成了内置的读取方法来读取数据集  
 - [MERFISH](https://ndownloader.figshare.com/files/28169379): ```adata = sq.datasets.merfish(path=os.path.join('dataset', 'merfish3d.h5ad'))```
 - [MIBI-TOF](https://ndownloader.figshare.com/files/28241139): ```adata = sq.datasets.mibitof(path=os.path.join('dataset', 'ionpath.h5ad'))```
 - [SlideseqV2](https://ndownloader.figshare.com/files/28242783): ```adata = sq.datasets.slideseqv2(path=os.path.join('dataset', 'slideseqv2.h5ad'))```
