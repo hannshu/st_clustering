@@ -147,7 +147,7 @@ $$
 
 |    | name | source | paper | annotation | size  (cell/spot * gene) | note  
 | -- | ---- | ------ | ----- | ---------- | ------------------------ | ----
-|1|MERFISH|squidpy|[DOI](https://doi.org/10.1126/science.aau5324)|*|73655*161|  
+|1|MERFISH|squidpy|[DOI](https://doi.org/10.1126/science.aau5324)|*|73655*161|12 slices  
 |2|MIBI-TOF|squidpy|[DOI](https://doi.org/10.1101/2020.01.17.909796)|*|3309*36|3 slices  
 |3|SlideseqV2|squidpy|[DOI](https://doi.org/10.1038/s41587-020-0739-1)|*|41786*4000|mouse neocortex  
 |4|scRNA-seq mouse cortex|squidpy|[DOI](https://doi.org/10.1038/s41586-018-0654-5)|*|21697*36826|  
@@ -157,15 +157,21 @@ $$
 |8|Slide-seqV2|BROAD INSTITUTE|[BROAD INSTITUTE](https://singlecell.broadinstitute.org/single_cell/study/SCP815/highly-sensitive-spatial-transcriptomics-at-near-cellular-resolution-with-slide-seqv2#study-summary)|-|21724*21220|mouse olfactory bulb  
 
 ## squidpy pre-processed
-所有经过squidpy预处理的数据集均附带有手工标记，文件格式为```.h5ad```，一般保存在```adata.obsm['spatial']```中，squidpy中集成了内置的读取方法来读取数据集  
-- [MERFISH](https://ndownloader.figshare.com/files/28169379): ```adata = sq.datasets.merfish(path=os.path.join('dataset', 'merfish3d.h5ad'))```
-- [MIBI-TOF](https://ndownloader.figshare.com/files/28241139): ```adata = sq.datasets.mibitof(path=os.path.join('dataset', 'ionpath.h5ad'))```
+所有经过squidpy预处理的数据集均附带有手工标记，文件格式为```.h5ad```，位置信息保存在```adata.obsm['spatial']```中，手工标记信息一般保存在```adata.obs['Cluster']```中，squidpy中集成了内置的读取方法来读取数据集  
+- [MERFISH](https://ndownloader.figshare.com/files/28169379):  
+```adata = sq.datasets.merfish(path=os.path.join('dataset', 'merfish3d.h5ad'))```  
+每个slice保存在```adata.obs['Bregma']```中，分别是```{-28.999999999999996, -24.0, -19.0, -14.000000000000002, -9.0, -4.0, 1.0, 6.0, 11.0, 16.0, 21.0, 26.0}```，手工标记的类别保存在```adata.obs['Cell_class']```中  
+- [MIBI-TOF](https://ndownloader.figshare.com/files/28241139):  
+```adata = sq.datasets.mibitof(path=os.path.join('dataset', 'ionpath.h5ad'))```  
+每个slice保存在```adata.obs['batch']```中，分别是```{'0', '1', '2'}```  
 - [SlideseqV2](https://ndownloader.figshare.com/files/28242783): ```adata = sq.datasets.slideseqv2(path=os.path.join('dataset', 'slideseqv2.h5ad'))```
 - [scRNA-seq mouse cortex](https://ndownloader.figshare.com/files/26404781): ```adata = sq.datasets.sc_mouse_cortex(path=os.path.join('dataset', 'sc_mouse_cortex.h5ad'))```
 
 ## DLPFC数据集
 DLPFC数据集是经过预处理的数据集，并包含有手工标注信息，文件格式为```.h5```，scanpy中集成有读取这种数据集的函数
 ``` python
+section_list = ['151507', '151508', '151509', '151510', '151669', '151670', '151671', '151672', '151673', '151674', '151675', '151676']
+
 # 读取section_id这个slice的数据
 adata = sc.read_visium(path=os.path.join('dataset', 'DLPFC', section_id))
 adata.var_names_make_unique()
@@ -173,7 +179,7 @@ adata.var_names_make_unique()
 # 为数据添加ground truth
 Ann_df = pd.read_csv(os.path.join('dataset', 'DLPFC', section_id, 'ground_truth.txt'), sep='\t', header=None, index_col=0)
 Ann_df.columns = ['Ground Truth']
-adata.obs['Ground Truth'] = Ann_df.loc[adata.obs_names, 'Ground Truth']
+adata.obs['Cluster'] = Ann_df.loc[adata.obs_names, 'Ground Truth']
 ```
 
 ## 10x Genomic
