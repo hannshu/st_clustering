@@ -7,17 +7,17 @@
 
 |    | model | journal | paper | status | tutorial | link | note  
 | -- | ----- | ------- | ----- | ------ | -------- | ---- | ---- 
-|1|Leiden|Scientific Reports|[DOI](https://doi.org/10.1038/s41598-019-41695-z)|NULL|[tutorial]()|[link](#Leiden)|  
-|2|STAGATE|Nature Communications|[DOI](https://doi.org/10.1038/s41467-022-29439-6)|*|[tutorial](./2_STAGATE_pyG/train.ipynb)|[link](#STAGATE)|只有tf实现中可以使用alpha，torch实现中没有这个功能  
-|3|CCST|Nature Computational Science|[DOI](https://doi.org/10.1038/s43588-022-00266-5)|*|[tutorial](./3_CCST/train.ipynb)|[link](#CCST)|  
-|4|SpaGCN|Nature Methods|[DOI](https://doi.org/10.1038/s41592-021-01255-8)|*|[tutorial](./4_SpaGCN/train.ipynb)|[link](#SpaGCN)|算法中用到的组织学数据需要自行制作  
-|5|SEDR|-|[DOI](https://doi.org/10.21203/rs.3.rs-665505/v1)|NULL|[tutorial]()|[link](#SEDR)|  
-|6|BayesSpace|Nature Biotechnology|[DOI](https://doi.org/10.1038/s41587-021-00935-2)|NULL|[tutorial]()|[link](#BayesSpace)|  
-|7|stLearn|bioRxiv|[DOI](https://doi.org/10.1101/2020.05.31.125658)|NULL|[tutorial]()|[link](#stLearn)|  
-|8|Giotto|BMC Genome Biology|[DOI](https://doi.org/10.1186/s13059-021-02286-2)|NULL|[tutorial]()|[link](#Giotto)|  
-|9|TransformerST|bioRxiv|[DOI](https://doi.org/10.1101/2022.08.11.503261)|NULL|[tutorial]()|[link](#TransformerST)|  
-|10|FICT|Bioinformatics|[DOI](https://doi.org/10.1093/bioinformatics/btab704)|NULL|[tutorial]()|[link](#FICT)|  
-|11|scGNN|Nature Communications|[DOI](https://doi.org/10.1038/s41467-021-22197-x)|NULL|[tutorial]()|[link](#scGNN)|  
+|1|Leiden|Scientific Reports|[DOI](https://doi.org/10.1038/s41598-019-41695-z)|NULL|[tutorial]()|[link](#leiden)|  
+|2|STAGATE|Nature Communications|[DOI](https://doi.org/10.1038/s41467-022-29439-6)|*|[tutorial](./2_STAGATE_pyG/train.ipynb)|[link](#stagate)|只有tf实现中可以使用alpha，torch实现中没有这个功能  
+|3|CCST|Nature Computational Science|[DOI](https://doi.org/10.1038/s43588-022-00266-5)|*|[tutorial](./3_CCST/train.ipynb)|[link](#ccst)|  
+|4|SpaGCN|Nature Methods|[DOI](https://doi.org/10.1038/s41592-021-01255-8)|*|[tutorial](./4_SpaGCN/train.ipynb)|[link](#spagcn)|算法中用到的组织学数据需要自行制作  
+|5|SEDR|-|[DOI](https://doi.org/10.21203/rs.3.rs-665505/v1)|NULL|[tutorial]()|[link](#sedr)|  
+|6|BayesSpace|Nature Biotechnology|[DOI](https://doi.org/10.1038/s41587-021-00935-2)|NULL|[tutorial]()|[link](#bayesspace)|  
+|7|stLearn|bioRxiv|[DOI](https://doi.org/10.1101/2020.05.31.125658)|NULL|[tutorial]()|[link](#stlearn)|  
+|8|Giotto|BMC Genome Biology|[DOI](https://doi.org/10.1186/s13059-021-02286-2)|NULL|[tutorial]()|[link](#giotto)|  
+|9|TransformerST|bioRxiv|[DOI](https://doi.org/10.1101/2022.08.11.503261)|NULL|[tutorial]()|[link](#transformerst)|  
+|10|FICT|Bioinformatics|[DOI](https://doi.org/10.1093/bioinformatics/btab704)|NULL|[tutorial]()|[link](#fict)|  
+|11|scGNN|Nature Communications|[DOI](https://doi.org/10.1038/s41467-021-22197-x)|NULL|[tutorial]()|[link](#scgnn)|  
 
 ## Leiden
 
