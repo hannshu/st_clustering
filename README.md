@@ -7,7 +7,7 @@
 
 |    | model | journal | paper | status | tutorial | link | note  
 | -- | ----- | ------- | ----- | ------ | -------- | ---- | ---- 
-|1|Louvain / Leiden|Scientific Reports|[DOI](https://doi.org/10.1038/s41598-019-41695-z)|NULL|[tutorial]()|[link](#leiden)|  
+|1|Louvain / Leiden|Scientific Reports|[DOI](https://doi.org/10.1038/s41598-019-41695-z)|~|[tutorial](./1_ScanPy/train.ipynb)|[link](#leiden)|  
 |2|STAGATE|Nature Communications|[DOI](https://doi.org/10.1038/s41467-022-29439-6)|*|[tutorial](./2_STAGATE_pyG/train.ipynb)|[link](#stagate)|只有tf实现中可以使用alpha，torch实现中没有这个功能  
 |3|CCST|Nature Computational Science|[DOI](https://doi.org/10.1038/s43588-022-00266-5)|*|[tutorial](./3_CCST/train.ipynb)|[link](#ccst)|  
 |4|SpaGCN|Nature Methods|[DOI](https://doi.org/10.1038/s41592-021-01255-8)|*|[tutorial](./4_SpaGCN/train.ipynb)|[link](#spagcn)|算法中用到的组织学数据需要自行制作  
