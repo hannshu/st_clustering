@@ -7,7 +7,7 @@
 
 |    | model | journal | paper | status | tutorial | link | note  
 | -- | ----- | ------- | ----- | ------ | -------- | ---- | ---- 
-|1|Leiden|Scientific Reports|[DOI](https://doi.org/10.1038/s41598-019-41695-z)|NULL|[tutorial]()|[link](#leiden)|  
+|1|Louvain / Leiden|Scientific Reports|[DOI](https://doi.org/10.1038/s41598-019-41695-z)|NULL|[tutorial]()|[link](#leiden)|  
 |2|STAGATE|Nature Communications|[DOI](https://doi.org/10.1038/s41467-022-29439-6)|*|[tutorial](./2_STAGATE_pyG/train.ipynb)|[link](#stagate)|只有tf实现中可以使用alpha，torch实现中没有这个功能  
 |3|CCST|Nature Computational Science|[DOI](https://doi.org/10.1038/s43588-022-00266-5)|*|[tutorial](./3_CCST/train.ipynb)|[link](#ccst)|  
 |4|SpaGCN|Nature Methods|[DOI](https://doi.org/10.1038/s41592-021-01255-8)|*|[tutorial](./4_SpaGCN/train.ipynb)|[link](#spagcn)|算法中用到的组织学数据需要自行制作  
@@ -20,7 +20,27 @@
 |11|scGNN|Nature Communications|[DOI](https://doi.org/10.1038/s41467-021-22197-x)|NULL|[tutorial]()|[link](#scgnn)|  
 
 ## Leiden
+### Louvain算法
+![img](./1_ScanPy/Louvain.png)  
+louvain算法是一种基于模块度的算法  
+每一步的步骤如上图所示，
+1. 对于每个节点，先计算这个节点i与其周围连接的节点组成社区/加入周围社区C的模块增益(the gain of modularity)  
+$$
+\Delta Q = [\frac{\sum_{in} + k_{i, in}}{2m} - (\frac{\sum_{tot} + k_i}{2m})^2] - [\frac{\sum_{in}}{2m} - (\frac{\sum_{tot}}{2m})^2 - (\frac{k_i}{2m})^2]
+$$
+其中$\sum_{in}$表示C内部所有连边的权重之和，$k_{i, in}$表示节点i与社区C内节点的连边的权重之和  
+$\sum_{tot}$表示社区C中所有节点和外界的连边的权重之和，$k_i$表示与节点i连接的所有边的权重之和  
+$m$表示所有边的权重之和  
+加入增益最大的社区(如果计算得到的所有增益全都是负值，则不加入任何社区)  
+2. 在计算完所有节点的增益并分配好社区后，将一个社区汇聚成一个节点，用于进行下一次的计算  
 
+不断计算直到达到设定的分辨率阈值(模块度)  
+$$
+Q = \frac{1}{2m} \sum_{i, j}[A_{ij} - \frac{k_ik_j}{2m}]\delta(c_i, c_j)
+$$
+其中$A_{ij}$表示节点i和j之间的权重，$\delta(c_i, c_j)$表示如果节点i和j属于同一个社区，则为1，否则为0
+
+### Leiden算法
 
 ## STAGATE
 ![img](./2_STAGATE_pyG/STAGATE_Overview.png)  
