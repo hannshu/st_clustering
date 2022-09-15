@@ -210,3 +210,44 @@ adata.obsm["spatial"] = coor_df.to_numpy()
 used_barcode = pd.read_csv(os.path.join('dataset', 'Slide-seqV2_MoB', 'used_barcodes.txt'), sep='\t', header=None)
 adata = adata[used_barcode[0],]
 ```
+
+# [评价指标](https://zhuanlan.zhihu.com/p/343667804)
+## 兰德系数
+TP：表示两个同类样本点在同一个簇中的情况数量(从一个*簇*中抽取两个，是同一*类*的个数)   
+FP：表示两个非同类样本点在同一个簇中的情况数量(从一个*簇*中抽取两个，不是同一个*类*的个数)  
+TN：表示两个非同类样本点分别在两个簇中的情况数量(任意两个*簇*中抽取两个，这两个不是同一个*类*)  
+FN：表示两个同类样本点分别在两个簇中的情况数量(任意两个*簇*中抽取两个，这两个是同一个*类*)  
+**注**: 这里的*簇*表示这个spot的预测值，*类*表示spot的真值  
+则兰德系数的计算公式如下:  
+$$
+RI = \frac{TP + TN}{TP + FP + TN + FN}
+$$
+
+## F值
+$$
+Precision = \frac{TP}{TP + FP} \\ 
+Recall = \frac{TP}{TP + FN} \\ 
+F_{\beta} = (1 + \beta^2) \frac{Precision * Recall}{\beta^2 * Precision + Recall}
+$$
+
+这里可以发现，TP是可以直接计算得到: $TP = \sum^{簇个数} \sum^{每个簇中个数大于2的类} C^{这个类在簇中的个数}_2$  
+其他三个参数不能通过计算直接得到，但可以得到一些参数的和:  
+其中
+$$
+TP + FN = \sum^{类} C^{这个类在所有簇中的总个数}_2 \\
+TP + FP = \sum^{簇} C^{簇中元素的个数}_2 \\
+TP + FP + TN + FN = C^{总共有多少个数}_2
+$$
+
+## 调整兰德系数
+$$
+ARI = \frac{2 * (TP * TN  - FN * FP)}{(TP + FN) * (FN + TN) + (TP + FP) * (FP + TN)}
+$$
+ARI的取值范围是[-1, 1]，RI的取值范围是[0, 1]  
+
+## 聚类纯度
+$$
+P = \frac{1}{N} \sum_k \max_j |\omega_k \cap c_j|
+$$
+其中$\omega_k$为聚类后的第k个类，$c_j$为这个元素属于第j类  
+每次选取每个簇中包含最多的那个元素的元素个数，然后求和取平均  
