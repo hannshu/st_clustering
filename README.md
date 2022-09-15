@@ -1,18 +1,23 @@
+# 目录
+- [1 空间转录组数据聚类分析方法](#整理到的对空间转录组进行聚类分析的算法)  
+- [2 空间转录组数据集](#目前整理到可以使用的数据集)  
+- [3 聚类评价方法](#评价指标)
+
 # 整理到的对空间转录组进行聚类分析的算法
 
-|    | model | journal | paper | status | tutorial | note  
-| -- | ----- | ------- | ----- | ------ | -------- | ---- 
-|1|Leiden|Scientific Reports|[DOI](https://doi.org/10.1038/s41598-019-41695-z)|NULL|[tutorial]()|  
-|2|STAGATE|Nature Communications|[DOI](https://doi.org/10.1038/s41467-022-29439-6)|*|[tutorial](./2_STAGATE_pyG/train.ipynb)|只有tf实现中可以使用alpha，torch实现中没有这个功能  
-|3|CCST|Nature Computational Science|[DOI](https://doi.org/10.1038/s43588-022-00266-5)|*|[tutorial](./3_CCST/train.ipynb)|  
-|4|SpaGCN|Nature Methods|[DOI](https://doi.org/10.1038/s41592-021-01255-8)|*|[tutorial](./4_SpaGCN/train.ipynb)|算法中用到的组织学数据需要自行制作  
-|5|SEDR|-|[DOI](https://doi.org/10.21203/rs.3.rs-665505/v1)|NULL|[tutorial]()|  
-|6|BayesSpace|Nature Biotechnology|[DOI](https://doi.org/10.1038/s41587-021-00935-2)|NULL|[tutorial]()|  
-|7|stLearn|bioRxiv|[DOI](https://doi.org/10.1101/2020.05.31.125658)|NULL|[tutorial]()|  
-|8|Giotto|BMC Genome Biology|[DOI](https://doi.org/10.1186/s13059-021-02286-2)|NULL|[tutorial]()|  
-|9|TransformerST|bioRxiv|[DOI](https://doi.org/10.1101/2022.08.11.503261)|NULL|[tutorial]()|  
-|10|FICT|Bioinformatics|[DOI](https://doi.org/10.1093/bioinformatics/btab704)|NULL|[tutorial]()|  
-|11|scGNN|Nature Communications|[DOI](https://doi.org/10.1038/s41467-021-22197-x)|NULL|[tutorial]()|  
+|    | model | journal | paper | status | tutorial | link | note  
+| -- | ----- | ------- | ----- | ------ | -------- | ---- | ---- 
+|1|Leiden|Scientific Reports|[DOI](https://doi.org/10.1038/s41598-019-41695-z)|NULL|[tutorial]()|[link](#Leiden)|  
+|2|STAGATE|Nature Communications|[DOI](https://doi.org/10.1038/s41467-022-29439-6)|*|[tutorial](./2_STAGATE_pyG/train.ipynb)|[link](#STAGATE)|只有tf实现中可以使用alpha，torch实现中没有这个功能  
+|3|CCST|Nature Computational Science|[DOI](https://doi.org/10.1038/s43588-022-00266-5)|*|[tutorial](./3_CCST/train.ipynb)|[link](#CCST)|  
+|4|SpaGCN|Nature Methods|[DOI](https://doi.org/10.1038/s41592-021-01255-8)|*|[tutorial](./4_SpaGCN/train.ipynb)|[link](#SpaGCN)|算法中用到的组织学数据需要自行制作  
+|5|SEDR|-|[DOI](https://doi.org/10.21203/rs.3.rs-665505/v1)|NULL|[tutorial]()|[link](#SEDR)|  
+|6|BayesSpace|Nature Biotechnology|[DOI](https://doi.org/10.1038/s41587-021-00935-2)|NULL|[tutorial]()|[link](#BayesSpace)|  
+|7|stLearn|bioRxiv|[DOI](https://doi.org/10.1101/2020.05.31.125658)|NULL|[tutorial]()|[link](#stLearn)|  
+|8|Giotto|BMC Genome Biology|[DOI](https://doi.org/10.1186/s13059-021-02286-2)|NULL|[tutorial]()|[link](#Giotto)|  
+|9|TransformerST|bioRxiv|[DOI](https://doi.org/10.1101/2022.08.11.503261)|NULL|[tutorial]()|[link](#TransformerST)|  
+|10|FICT|Bioinformatics|[DOI](https://doi.org/10.1093/bioinformatics/btab704)|NULL|[tutorial]()|[link](#FICT)|  
+|11|scGNN|Nature Communications|[DOI](https://doi.org/10.1038/s41467-021-22197-x)|NULL|[tutorial]()|[link](#scGNN)|  
 
 ## Leiden
 
@@ -211,7 +216,8 @@ used_barcode = pd.read_csv(os.path.join('dataset', 'Slide-seqV2_MoB', 'used_barc
 adata = adata[used_barcode[0],]
 ```
 
-# [评价指标](https://zhuanlan.zhihu.com/p/343667804)
+# 评价指标
+[参考链接](https://zhuanlan.zhihu.com/p/343667804)
 ## 兰德系数
 TP：表示两个同类样本点在同一个簇中的情况数量(从一个*簇*中抽取两个，是同一*类*的个数)   
 FP：表示两个非同类样本点在同一个簇中的情况数量(从一个*簇*中抽取两个，不是同一个*类*的个数)  
