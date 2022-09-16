@@ -7,7 +7,7 @@
 
 |    | model | journal | paper | status | tutorial | link | note  
 | -- | ----- | ------- | ----- | ------ | -------- | ---- | ---- 
-|1|Louvain / Leiden|Scientific Reports|[DOI](https://doi.org/10.1038/s41598-019-41695-z)|~|[tutorial](./1_ScanPy/train.ipynb)|[link](#leiden)|  
+|1|Louvain|Journal of Statistical Mechanics: Theory and Experiment|[DOI](https://doi.org/10.1088/1742-5468/2008/10/P10008)|*|[tutorial](./1_ScanPy/train.ipynb)|[link](#louvain)|  
 |2|STAGATE|Nature Communications|[DOI](https://doi.org/10.1038/s41467-022-29439-6)|*|[tutorial](./2_STAGATE_pyG/train.ipynb)|[link](#stagate)|只有tf实现中可以使用alpha，torch实现中没有这个功能  
 |3|CCST|Nature Computational Science|[DOI](https://doi.org/10.1038/s43588-022-00266-5)|*|[tutorial](./3_CCST/train.ipynb)|[link](#ccst)|  
 |4|SpaGCN|Nature Methods|[DOI](https://doi.org/10.1038/s41592-021-01255-8)|*|[tutorial](./4_SpaGCN/train.ipynb)|[link](#spagcn)|算法中用到的组织学数据需要自行制作  
@@ -19,12 +19,11 @@
 |10|FICT|Bioinformatics|[DOI](https://doi.org/10.1093/bioinformatics/btab704)|NULL|[tutorial]()|[link](#fict)|  
 |11|scGNN|Nature Communications|[DOI](https://doi.org/10.1038/s41467-021-22197-x)|NULL|[tutorial]()|[link](#scgnn)|  
 
-## Leiden
-### Louvain算法
+## Louvain
 ![img](./1_ScanPy/Louvain.png)  
 louvain算法是一种基于模块度的算法  
 每一步的步骤如上图所示，
-1. 对于每个节点，先计算这个节点i与其周围连接的节点组成社区/加入周围社区C的模块增益(the gain of modularity)  
+1. 对于每个节点，先计算这个节点i从原来的社区中脱离出来，然后加入与其直接相连的周围社区C，然后计算模块增益(the gain of modularity)  
 $$
 \Delta Q = [\frac{\sum_{in} + k_{i, in}}{2m} - (\frac{\sum_{tot} + k_i}{2m})^2] - [\frac{\sum_{in}}{2m} - (\frac{\sum_{tot}}{2m})^2 - (\frac{k_i}{2m})^2]
 $$
@@ -40,7 +39,9 @@ Q = \frac{1}{2m} \sum_{i, j}[A_{ij} - \frac{k_ik_j}{2m}]\delta(c_i, c_j)
 $$
 其中$A_{ij}$表示节点i和j之间的权重，$\delta(c_i, c_j)$表示如果节点i和j属于同一个社区，则为1，否则为0
 
-### Leiden算法
+### 在ScanPy中使用的流程
+在Scanpy中，louvain只是作为图聚类的方法，由于这个方法及其依赖于图的结构，所以需要重点关注的是```sc.pp.neighbors(adata)```这个生成图的方法  
+Scanpy中使用的方法是对特征矩阵中的每两行两两求乘积作为边的权重，然后选取k(这里的k默认为30)个权重最大的边作为最终生成的边
 
 ## STAGATE
 ![img](./2_STAGATE_pyG/STAGATE_Overview.png)  
