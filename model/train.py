@@ -14,19 +14,20 @@ def train(adata, in_features, label=None, epochs=50, lr=1e-3, embedding_size=128
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # 构造特征所需的图
-    graph_gcn = build_graph(adata, 200, 800).to(device)
+    graph_gcn = build_graph(adata, 200, in_features).to(device)
     graph_node2vec = build_feature_graph(adata).to(device)
 
     # 构造模型
     model = my_model(in_features, embedding_size, 
-        graph_node2vec, embedding_size, walk_length, context_size, walks_per_node,
-        node2vec_p, node2vec_q
+        # graph_node2vec, embedding_size, walk_length, context_size, walks_per_node,
+        # node2vec_p, node2vec_q
     ).to(device)
     loss_function = my_loss(q_cluster, seed, device).to(device)
-    optimizer_model = torch.optim.Adam(model.parameters(), lr=lr)
+    optimizer_model = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=5e-4)
 
     model.train()
     for _ in tqdm(range(epochs)):
+        optimizer_model.zero_grad()
         output = model(graph_gcn)
         loss = loss_function(output, label)
         loss.backward()

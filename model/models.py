@@ -3,13 +3,12 @@ import torch
 import torch.nn as nn
 import numpy as np
 from sklearn.cluster import KMeans
-from layers import GraphConvolution
 
 class my_model(nn.Module):
 
     def __init__(self, in_features, out_features,
-                graph_node2vec, embedding_size, walk_length, context_size, walks_per_node,
-                node2vec_p, node2vec_q
+                # graph_node2vec, embedding_size, walk_length, context_size, walks_per_node,
+                # node2vec_p, node2vec_q
     ) -> None:
         super().__init__()
 
