@@ -1,40 +1,45 @@
-from torch_geometric.nn import Node2Vec
-from models import my_model, my_loss
+import scanpy as sc
 import torch
-from tqdm import tqdm
-from utilities import build_feature_graph, build_graph
+from STAGATE import STAGATE
+from utilities import *
 
+def train(adata, radius=300, components_spatial=3000, 
+          components_features=200, embedding_dim=128, lr=1e-3, epochs=100):
 
-def train(adata, in_features, label=None, epochs=50, lr=1e-3, embedding_size=128,
-            walk_length=20, context_size=5, walks_per_node=10, node2vec_p=1, node2vec_q=1,
-            q_cluster=25
-    ):
-    seed = 2022
-    torch.manual_seed(seed)
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    sc.pp.highly_variable_genes(adata, flavor="seurat_v3", n_top_genes=3000)
+    sc.pp.normalize_total(adata, target_sum=1e4)
+    sc.pp.log1p(adata)
 
-    # 构造特征所需的图
-    graph_gcn = build_graph(adata, 200, in_features).to(device)
-    graph_node2vec = build_feature_graph(adata).to(device)
+    data_spatial = build_spatial_graph(adata, radius, components_spatial)
+    data_features = build_feature_graph(adata, components_features, data_spatial)
 
-    # 构造模型
-    model = my_model(in_features, embedding_size, 
-        # graph_node2vec, embedding_size, walk_length, context_size, walks_per_node,
-        # node2vec_p, node2vec_q
-    ).to(device)
-    loss_function = my_loss(q_cluster, seed, device).to(device)
-    optimizer_model = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=5e-4)
+    # 建立模型
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    model_spatial = STAGATE(hidden_dims=[components_spatial, 
+                            (components_spatial + embedding_dim // 2) // 2,
+                            embedding_dim // 2]).to(device)
+    model_features = STAGATE(hidden_dims=[components_features, 
+                            (components_features + embedding_dim // 2) // 2,
+                            embedding_dim // 2]).to(device)
+    loss_spatial_func = torch.nn.MSELoss().to(device)
+    loss_features_func = torch.nn.MSELoss().to(device)
+    optim_spatial = torch.optim.Adam(model_spatial.parameters(), lr=lr, weight_decay=0.005)
+    optim_features = torch.optim.Adam(model_features.parameters(), lr=lr, weight_decay=0.005)
 
-    model.train()
-    for _ in tqdm(range(epochs)):
-        optimizer_model.zero_grad()
-        output = model(graph_gcn)
-        loss = loss_function(output, label)
-        loss.backward()
-        optimizer_model.step()
+    model_spatial.train()
+    model_features.train()
+    for _ in tqdm(range(epochs), desc='training model'):
+        optim_spatial.zero_grad()
+        optim_features.zero_grad()
+        _, output_spatial = model_spatial(data_spatial)
+        _, output_features = model_features(data_features)
+        loss_spatial = loss_spatial_func(output_spatial, data_spatial.x)
+        loss_features = loss_features_func(output_features, data_features.x)
+        loss_spatial.backward()
+        loss_features.backward()
+        optim_spatial.step()
+        optim_features.step()
 
-    model.eval()
-    with torch.no_grad():
-        output = model(graph_gcn)
-
-    return output
+    embedding_spatial, _ = model_spatial(data_spatial)
+    embedding_features, _ = model_features(data_features)
+    return torch.cat([embedding_spatial, embedding_features], dim=1).cpu().detach().numpy()
