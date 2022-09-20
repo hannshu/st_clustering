@@ -68,7 +68,7 @@ class SpaGCN(object):
         y_pred = torch.argmax(q, dim=1).data.cpu().numpy()
         # Max probability plot
         prob=q.detach().numpy()
-        return y_pred, prob
+        return y_pred, prob, z
 
 
 

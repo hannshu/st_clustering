@@ -347,7 +347,7 @@ def search_res(adata, adj, l, target_num, start=0.4, step=0.1, tol=5e-3, lr=0.05
     clf=SpaGCN()
     clf.set_l(l)
     clf.train(adata,adj,init_spa=True,init="louvain",res=res, tol=tol, lr=lr, max_epochs=max_epochs)
-    y_pred, _=clf.predict()
+    y_pred, _, _=clf.predict()
     old_num=len(set(y_pred))
     print("Res = ", res, "Num of clusters = ", old_num)
     run=0
