@@ -1,6 +1,8 @@
 import scanpy as sc
 import os
 import torch
+from tqdm import tqdm
+
 from STAGATE import STAGATE
 from utilities import *
 
@@ -41,7 +43,7 @@ def train(adata, radius=None, knears=None, components_spatial=3000,
     print('>>> feature model data(deepwalk) size: ({}, {})'.format(data_features.x.shape[0], data_features.x.shape[1]))
 
     model_spatial.train()
-    for _ in tqdm(range(epochs_spatial), desc='training spatial model'):
+    for _ in tqdm(range(epochs_spatial), desc='>>> training spatial model'):
         optim_spatial.zero_grad()
         _, output_spatial = model_spatial(data_spatial)
         loss_spatial = loss_spatial_func(data_spatial.x, output_spatial)
@@ -50,7 +52,7 @@ def train(adata, radius=None, knears=None, components_spatial=3000,
         optim_spatial.step()
         
     model_features.train()
-    for _ in tqdm(range(epochs_features), desc='training features model'):
+    for _ in tqdm(range(epochs_features), desc='>>> training features model'):
         optim_features.zero_grad()
         _, output_features = model_features(data_features)
         loss_features = loss_features_func(data_features.x, output_features)
@@ -67,9 +69,11 @@ def train(adata, radius=None, knears=None, components_spatial=3000,
             embedding_spatial.cpu().detach().numpy(), 
             embedding_features.cpu().detach().numpy())
     
-def evaluate(adata, embed, spatial, features, pca, n_clusters, seed=2022):
+def evaluate(adata, embed, spatial, features, pca_components, n_clusters, seed=2022):
+    pca = PCA(n_components=pca_components).fit(embed).transform(embed)
+    
     adata = mclust_R(adata, n_clusters, embed, random_seed=seed, name='mclust_embed')
-    adata = mclust_R(adata, n_clusters, embed, random_seed=seed, name='mclust_spatial')
+    adata = mclust_R(adata, n_clusters, spatial, random_seed=seed, name='mclust_spatial')
     adata.obs['embed'] = [str(x) for x in KMeans(n_clusters=n_clusters, random_state=seed).fit(embed).predict(embed)]
     adata.obs['pred'] = [str(x) for x in KMeans(n_clusters=n_clusters, random_state=seed).fit(pca).predict(pca)]
     adata.obs['pred_spatial'] = [str(x) for x in KMeans(n_clusters=n_clusters, random_state=seed).fit(spatial).predict(spatial)]
@@ -109,7 +113,9 @@ def get_dlpfc_data(id):
     sc.pp.normalize_total(adata, target_sum=1e4)
     sc.pp.log1p(adata)
     
-    return adata, len(set(adata.obs['cluster'])) - 1
+    cluster_num = len(set(adata.obs['cluster'])) - 1
+    print('>>> dataset id: {}, size: {}, cluster: {}.'.format(section_id, adata.X.shape, cluster_num))
+    return adata, cluster_num
 
 def mclust_R(adata, num_cluster, data, name, modelNames='EEE', random_seed=2020):
     """\
