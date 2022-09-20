@@ -11,7 +11,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.cluster import KMeans
 
 def train(adata, radius=None, knears=None, components_spatial=3000, 
-          walk_length=45, walk_times=10,
+          walk_length=45, walk_times=10, n_neighbors=6,
           components_features=256, embedding_dim=60, lr=1e-3,
           epochs_spatial=500, epochs_features=500, seed=2022,
           hidden_layer_dim_spatial=512, hidden_layer_dim_features=128,
@@ -22,8 +22,8 @@ def train(adata, radius=None, knears=None, components_spatial=3000,
     np.random.seed(seed)
 
     data_spatial = build_spatial_graph(adata, components_spatial, radius, knears)
-    data_features = build_feature_graph(adata, components_features, 
-                                        data_spatial, walk_length, walk_times, seed)
+    data_features = build_feature_graph(adata, components_features, data_spatial, 
+                                        walk_length, walk_times, n_neighbors, seed)
 
     # 建立模型
     model_spatial = STAGATE(hidden_dims=[components_spatial, 
@@ -69,7 +69,7 @@ def train(adata, radius=None, knears=None, components_spatial=3000,
             embedding_spatial.cpu().detach().numpy(), 
             embedding_features.cpu().detach().numpy())
     
-def evaluate(adata, embed, spatial, features, pca_components, n_clusters, seed=2022):
+def evaluate(adata, embed, spatial, features, pca_components, n_clusters, name='cluster', seed=2022):
     pca = PCA(n_components=pca_components).fit(embed).transform(embed)
     
     adata = mclust_R(adata, n_clusters, embed, random_seed=seed, name='mclust_embed')
@@ -79,7 +79,7 @@ def evaluate(adata, embed, spatial, features, pca_components, n_clusters, seed=2
     adata.obs['pred_spatial'] = [str(x) for x in KMeans(n_clusters=n_clusters, random_state=seed).fit(spatial).predict(spatial)]
     adata.obs['pred_features'] = [str(x) for x in KMeans(n_clusters=n_clusters, random_state=seed).fit(features).predict(features)]
     
-    label = LabelEncoder().fit_transform(adata.obs['cluster'])
+    label = LabelEncoder().fit_transform(adata.obs[name])
     pred_mclust_embed = LabelEncoder().fit_transform(adata.obs['mclust_embed'])
     pred_mclust_spatial = LabelEncoder().fit_transform(adata.obs['mclust_spatial'])
     pred_embed = LabelEncoder().fit_transform(adata.obs['embed'])
@@ -94,7 +94,7 @@ def evaluate(adata, embed, spatial, features, pca_components, n_clusters, seed=2
     print('pred_spatial:', metrics.adjusted_rand_score(label, pred_spatial))
     print('pred_features:', metrics.adjusted_rand_score(label, pred_features))
     
-    sc.pl.spatial(adata, color=['cluster', 'mclust_embed', 'mclust_spatial', 'embed', 'pred', 'pred_spatial', 'pred_features'])
+    sc.pl.spatial(adata, color=[name, 'mclust_embed', 'mclust_spatial', 'embed', 'pred', 'pred_spatial', 'pred_features'])
     
 def get_dlpfc_data(id):
     section_list = ['151507', '151508', '151509', '151510', '151669', '151670', 

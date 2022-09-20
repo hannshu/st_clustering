@@ -179,7 +179,7 @@ $$
 |4|scRNA-seq mouse cortex|squidpy|[DOI](https://doi.org/10.1038/s41586-018-0654-5)|*|21697*36826|  
 |5|10x Visium (DLPFC dataset)|spatialLIBD|[DOI](https://doi.org/10.1186/s12864-022-08601-w)|*|approx. 3460*33538 each|12 slices  
 |6|10x Genomics Adult Mouse Brain Section 1 (Coronal)|10x Genomics|[10x Genomics](https://www.10xgenomics.com/resources/datasets/adult-mouse-brain-section-1-coronal-stains-dapi-anti-neu-n-1-standard-1-1-0)|-|2903*32285|  
-|7|Mouse Brain Serial Section 1 (Sagittal-Posterior)|10x Genomics|[10x Genomics](https://support.10xgenomics.com/spatial-gene-expression/datasets/1.0.0/V1_Mouse_Brain_Sagittal_Posterior)||3353*31053|
+|7|Mouse Brain Serial Section 1 (Sagittal-Posterior)|10x Genomics|[10x Genomics](https://support.10xgenomics.com/spatial-gene-expression/datasets/1.0.0/V1_Mouse_Brain_Sagittal_Posterior)|-|3353*31053|
 |8|Slide-seqV2|BROAD INSTITUTE|[BROAD INSTITUTE](https://singlecell.broadinstitute.org/single_cell/study/SCP815/highly-sensitive-spatial-transcriptomics-at-near-cellular-resolution-with-slide-seqv2#study-summary)|-|21724*21220|mouse olfactory bulb  
 
 ## squidpy pre-processed
@@ -207,6 +207,14 @@ Ann_df = pd.read_csv(os.path.join('dataset', 'DLPFC', section_id, 'ground_truth.
 Ann_df.columns = ['Ground Truth']
 adata.obs['Cluster'] = Ann_df.loc[adata.obs_names, 'Ground Truth']
 ```
+
+### 效果对比
+| method | embedding size | ARI-k_means | ARI-mclust | ARI-other_methods | note |
+| ------ | -------------- | ----------- | ---------- | ----------------- | ---- |
+|ScanPy(Louvain)|-|-|-|0.271, 0.268, 0.275, 0.278, 0.112, 0.050, 0.255, 0.232, 0.216, 0.271, 0.285, 0.227| 直接进行分类，没有embedding生成
+|STAGATE|30|0.359, 0.318, 0.448, 0.407, 0.252, 0.194, 0.345, 0.380, 0.284, 0.319, 0.359, 0.288 |0.584, 0.522, 0.472, 0.468, 0.494, 0.373, 0.590, 0.549, 0.527, 0.511, 0.438, 0.434 |-|
+|CCST|50|0.484, 0.453, 0.415, 0.454, 0.369, 0.334, 0.411, 0.447, 0.394, 0.314, 0.276, 0.302 |0.354, 0.386, 0.271, 0.502, 0.265, 0.311, 0.208, 0.449, 0.267, 0.354, 0.379, 0.352|-|
+|SpaGCN|50|0.387, 0.333, 0.377, 0.288, 0.043, 0.211, 0.467, 0.379, 0.453, 0.211, 0.221, 0.271| 0.424, 0.359, 0.442, 0.403, 0.206, 0.205, 0.509, 0.531, 0.508, 0.350, 0.461, 0.370|0.430, 0.361, 0.365, 0.402, 0.123, 0.168, 0.489, 0.476, 0.493, 0.232, 0.370, 0.299| 能生成embedding，但使用内部方法聚类(计算距离的公式与kMeans略有不同)
 
 ## 10x Genomic
 ``` python

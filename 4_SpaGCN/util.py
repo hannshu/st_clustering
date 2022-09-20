@@ -359,7 +359,7 @@ def search_res(adata, adj, l, target_num, start=0.4, step=0.1, tol=5e-3, lr=0.05
         clf=SpaGCN()
         clf.set_l(l)
         clf.train(adata,adj,init_spa=True,init="louvain",res=res+step*old_sign, tol=tol, lr=lr, max_epochs=max_epochs)
-        y_pred, _=clf.predict()
+        y_pred, _, _=clf.predict()
         new_num=len(set(y_pred))
         print("Res = ", res+step*old_sign, "Num of clusters = ", new_num)
         if new_num==target_num:

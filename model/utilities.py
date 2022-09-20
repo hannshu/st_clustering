@@ -55,7 +55,10 @@ def random_walk(graph, walk_length, walk_times, seed):
             sentence = [node]
             cur_node = node
             for _ in range(walk_length - 1):
-                neighbors = list(graph.neighbors(cur_node))
+                neighbors = []
+                for node in graph.neighbors(cur_node):
+                    if (node not in neighbors):
+                        neighbors.append(node)
                 if (0 == len(neighbors)):
                     break
                 cur_node = neighbors[random.randint(0, len(neighbors) - 1)]
@@ -65,9 +68,9 @@ def random_walk(graph, walk_length, walk_times, seed):
     return sentences
 
 
-def build_feature_graph(adata, features, spatial_data, walk_length, walk_times, seed):
+def build_feature_graph(adata, features, spatial_data, walk_length, walk_times, n_neighbors, seed):
     adata = adata[:, adata.var['highly_variable']]
-    sc.pp.neighbors(adata)
+    sc.pp.neighbors(adata, n_neighbors=n_neighbors)
     edge_list = np.nonzero(adata.obsp['distances'].todense())
     
     graph = nx.Graph()
@@ -79,7 +82,7 @@ def build_feature_graph(adata, features, spatial_data, walk_length, walk_times, 
     
     start_time = time.time()
     word2vec_model = word2vec.Word2Vec(sentences, vector_size=features, sg=1, hs=0, 
-                                       negative=5, seed=seed, epochs=500, workers=12)
+                                       negative=5, seed=seed, epochs=100, workers=12)
     x = word2vec_model.wv.vectors
     end_time = time.time()
     

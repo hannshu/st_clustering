@@ -80,13 +80,13 @@ def train_STAGATE(adata, hidden_dims=[512, 30], n_epochs=1000, lr=0.001, key_add
 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
 
-    loss_list = []
-    for epoch in tqdm(range(1, n_epochs+1)):
-        model.train()
+    # loss_list = []
+    model.train()
+    for _ in tqdm(range(1, n_epochs+1)):
         optimizer.zero_grad()
         z, out = model(data.x, data.edge_index)
         loss = F.mse_loss(data.x, out) #F.nll_loss(out[data.train_mask], data.y[data.train_mask])
-        loss_list.append(loss)
+        # loss_list.append(loss)
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), gradient_clipping)
         optimizer.step()
@@ -97,11 +97,11 @@ def train_STAGATE(adata, hidden_dims=[512, 30], n_epochs=1000, lr=0.001, key_add
     STAGATE_rep = z.to('cpu').detach().numpy()
     adata.obsm[key_added] = STAGATE_rep
 
-    if save_loss:
-        adata.uns['STAGATE_loss'] = loss
-    if save_reconstrction:
-        ReX = out.to('cpu').detach().numpy()
-        ReX[ReX<0] = 0
-        adata.layers['STAGATE_ReX'] = ReX
+    # if save_loss:
+    #     adata.uns['STAGATE_loss'] = loss
+    # if save_reconstrction:
+    #     ReX = out.to('cpu').detach().numpy()
+    #     ReX[ReX<0] = 0
+    #     adata.layers['STAGATE_ReX'] = ReX
 
     return adata
