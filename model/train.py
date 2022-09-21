@@ -140,3 +140,65 @@ def mclust_R(adata, num_cluster, data, name, modelNames='EEE', random_seed=2020)
     adata.obs[name] = adata.obs[name].astype('int')
     adata.obs[name] = adata.obs[name].astype('category')
     return adata
+
+
+def train_1(adata, radius=None, knears=None, components_spatial=3000, 
+          walk_length=45, walk_times=10, n_neighbors=6,
+          components_features=256, embedding_dim=60, lr=1e-3,
+          epochs_spatial=500, epochs_features=500, seed=2022,
+          hidden_layer_dim_spatial=512, hidden_layer_dim_features=128,
+          device = 'cuda' if torch.cuda.is_available() else 'cpu'):
+    
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    np.random.seed(seed)
+
+    data_spatial = build_spatial_graph(adata, components_spatial, radius, knears)
+    data_features = build_feature_graph(adata, embedding_dim // 2, data_spatial, 
+                                        walk_length, walk_times, n_neighbors, seed)
+
+    # 建立模型
+    model_spatial = STAGATE(hidden_dims=[components_spatial, 
+                            hidden_layer_dim_spatial,
+                            embedding_dim // 2]).to(device)
+    model_features = STAGATE(hidden_dims=[components_features, 
+                            hidden_layer_dim_features,
+                            embedding_dim // 2]).to(device)
+    loss_spatial_func = torch.nn.MSELoss().to(device)
+    loss_features_func = torch.nn.MSELoss().to(device)
+    optim_spatial = torch.optim.Adam(model_spatial.parameters(), lr=lr, weight_decay=1e-4)
+    optim_features = torch.optim.Adam(model_features.parameters(), lr=lr, weight_decay=1e-4)
+
+    data_spatial = data_spatial.to(device)
+    data_features = data_features.to(device)
+    print('>>> spatial model data(features) size: ({}, {})'.format(data_spatial.x.shape[0], data_spatial.x.shape[1]))
+    print('>>> feature model data(deepwalk) size: ({}, {})'.format(data_features.x.shape[0], data_features.x.shape[1]))
+
+    model_spatial.train()
+    for _ in tqdm(range(epochs_spatial), desc='>>> training spatial model'):
+        optim_spatial.zero_grad()
+        _, output_spatial = model_spatial(data_spatial)
+        loss_spatial = loss_spatial_func(data_spatial.x, output_spatial)
+        loss_spatial.backward()
+        torch.nn.utils.clip_grad_norm_(model_spatial.parameters(), 5)
+        optim_spatial.step()
+        
+    # model_features.train()
+    # for _ in tqdm(range(epochs_features), desc='>>> training features model'):
+    #     optim_features.zero_grad()
+    #     _, output_features = model_features(data_features)
+    #     loss_features = loss_features_func(data_features.x, output_features)
+    #     loss_features.backward()
+    #     torch.nn.utils.clip_grad_norm_(model_features.parameters(), 5)
+    #     optim_features.step()
+
+    model_spatial.eval()
+    # model_features.eval()
+    with torch.no_grad():
+        embedding_spatial, _ = model_spatial(data_spatial.to(device))
+        # embedding_features, _ = model_features(data_features.to(device))
+        
+    embedding_features = data_features.x
+    return (torch.cat([embedding_spatial, embedding_features], dim=1).cpu().detach().numpy(), 
+            embedding_spatial.cpu().detach().numpy(), 
+            embedding_features.cpu().detach().numpy())
