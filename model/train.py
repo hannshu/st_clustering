@@ -154,7 +154,7 @@ def train_1(adata, radius=None, knears=None, components_spatial=3000,
     np.random.seed(seed)
 
     data_spatial = build_spatial_graph(adata, components_spatial, radius, knears)
-    data_features = build_feature_graph(adata, embedding_dim // 2, data_spatial, 
+    data_features = build_feature_graph(adata, components_features, data_spatial, 
                                         walk_length, walk_times, n_neighbors, seed)
 
     # 建立模型
