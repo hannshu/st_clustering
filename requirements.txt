@@ -9,6 +9,10 @@ matplotlib
 scikit-misc
 louvain
 gensim
+
+# ``` bash
+# pip3 install -r requirements.txt
+# ```
 # not suggest to install this model by pip
 # you can install them on their official website
 # torch   # if you have cuda, you should install cuda first
