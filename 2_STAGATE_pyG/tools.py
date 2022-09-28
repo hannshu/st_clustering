@@ -8,13 +8,14 @@ import os
 from sklearn import metrics
 from sklearn.preprocessing import LabelEncoder 
 from sklearn.cluster import KMeans
+import torch
 
-def train(adata, epochs, k_cutoff=None, rad_cutoff=None, seed=2022):
+def train(adata, epochs, device=torch.device('cuda:0' if torch.cuda.is_available() else 'cpu'), k_cutoff=None, rad_cutoff=None, seed=2022):
     if (k_cutoff):
         Cal_Spatial_Net(adata, k_cutoff=6, model='KNN') # 生成网络，保存在.uns['Spatial_Net']中 
     else:
         Cal_Spatial_Net(adata, rad_cutoff=rad_cutoff) # 生成网络，保存在.uns['Spatial_Net']中 
-    return train_STAGATE(adata, n_epochs=epochs, random_seed=seed)
+    return train_STAGATE(adata, n_epochs=epochs, random_seed=seed, device=device)
 
 def get_dlpfc_data(id):
     section_list = ['151507', '151508', '151509', '151510', '151669', '151670', 
@@ -47,3 +48,14 @@ def evaluate(adata, n_clusters, seed=2022):
     print('pred:', metrics.adjusted_rand_score(label, pred))    # 计算预测值与真实值之间的兰德系数
     print('pred_kmeans:', metrics.adjusted_rand_score(label, pred_kmeans))    # 计算预测值与真实值之间的兰德系数
     sc.pl.spatial(adata, color=['cluster', 'mclust', 'kmeans'])
+
+def get_slideseqv2_data():
+    adata = sq.datasets.slideseqv2(path=os.path.join('..', 'dataset', 'slideseqv2.h5ad'))
+
+    sc.pp.highly_variable_genes(adata, flavor="seurat_v3", n_top_genes=3000)
+    sc.pp.normalize_total(adata, target_sum=1e4)
+    sc.pp.log1p(adata)
+
+    cluster_num = len(set(adata.obs['cluster']))
+    print('>>> dataset size: {}, cluster: {}.'.format(adata.X.shape, cluster_num))
+    return adata, cluster_num

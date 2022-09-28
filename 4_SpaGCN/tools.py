@@ -5,13 +5,14 @@ import os
 from sklearn import metrics
 from sklearn.preprocessing import LabelEncoder 
 from sklearn.cluster import KMeans
+import squidpy as sq
 
 from calculate_adj import *
 from util import *
 from SpaGCN import *
 
 
-def train(adata, n_clusters, seed):
+def train(adata, n_clusters, seed, l_preset=None):
     
     # 生成邻接矩阵(这里只计算距离)
     pos = adata.obsm['spatial'].T
@@ -28,8 +29,11 @@ def train(adata, n_clusters, seed):
     sc.pp.log1p(adata)
     
     # 计算用于归一化邻接矩阵的超参数l
-    p=0.5 
-    l=search_l(p, adj, start=0.01, end=1000, tol=0.01, max_run=100)
+    if (l_preset):
+        l = l_preset
+    else:
+        p=0.5 
+        l=search_l(p, adj, start=0.01, end=1000, tol=0.01, max_run=100)
     
     # 确定louvain算法需要的分辨率
     r_seed=t_seed=n_seed=seed
@@ -77,7 +81,18 @@ def get_dlpfc_data(id):
     print('>>> dataset id: {}, size: {}, cluster: {}.'.format(section_id, adata.X.shape, cluster_num))
     return adata, cluster_num
 
-def evaluate(adata, n_clusters, seed=2022):
+def get_slideseqv2_data():
+    adata = sq.datasets.slideseqv2(path=os.path.join('..', 'dataset', 'slideseqv2.h5ad'))
+
+    sc.pp.highly_variable_genes(adata, flavor="seurat_v3", n_top_genes=3000)
+    sc.pp.normalize_total(adata, target_sum=1e4)
+    sc.pp.log1p(adata)
+
+    cluster_num = len(set(adata.obs['cluster']))
+    print('>>> dataset size: {}, cluster: {}.'.format(adata.X.shape, cluster_num))
+    return adata, cluster_num
+
+def evaluate(adata, n_clusters, seed=2022, spot_size=None):
     adata = mclust_R(adata, n_clusters, random_seed=seed)
     adata.obs['pred_kmeans'] = [str(x) for x in KMeans(n_clusters=n_clusters, random_state=seed).fit(adata.obsm['SpaGCN']).predict(adata.obsm['SpaGCN'])]
     
@@ -90,7 +105,10 @@ def evaluate(adata, n_clusters, seed=2022):
     print('pred:', metrics.adjusted_rand_score(label, pred))
     print('pred_kmeans:', metrics.adjusted_rand_score(label, pred_kmeans))
     
-    sc.pl.spatial(adata, color=['cluster', 'mclust', 'pred', 'pred_kmeans'])
+    if (spot_size):
+        sc.pl.spatial(adata, color=['cluster', 'mclust', 'pred', 'pred_kmeans'], spot_size=spot_size)
+    else:
+        sc.pl.spatial(adata, color=['cluster', 'mclust', 'pred', 'pred_kmeans'])
 
 def mclust_R(adata, num_cluster, modelNames='EEE', used_obsm='SpaGCN', random_seed=2022):
     """\

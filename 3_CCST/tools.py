@@ -9,12 +9,13 @@ from sklearn import metrics
 from sklearn.preprocessing import LabelEncoder 
 from sklearn.cluster import KMeans
 from torch_geometric.data import DataLoader
+import torch
 
 
-def train(adata, seed=2022):
-    data = build_graph(adata, radius=250, lamb=0.8)
+def train(adata, radius, seed=2022, device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')):
+    data = build_graph(adata, radius=radius, lamb=0.8)
     data_loader = DataLoader([data], batch_size=1)
-    adata.obsm['CCST'] = train_DGI(data_loader, len(data.x[0]), 128, 3000, 1e-6, seed)
+    adata.obsm['CCST'] = train_DGI(data_loader, len(data.x[0]), 128, 3000, 1e-6, seed, device)
     adata.obsm['CCST_pca'] = PCA_process(adata.obsm['CCST'], 50)
 
 def get_dlpfc_data(id):
@@ -62,14 +63,30 @@ def mclust_R(adata, num_cluster, modelNames='EEE', used_obsm='CCST_pca', random_
     adata.obs['mclust'] = adata.obs['mclust'].astype('category')
     return adata
 
-def evaluate(adata, n_clusters, seed=2022):
+def evaluate(adata, n_clusters, seed=2022, spot_size=None):
     adata.obs['kmeans'] = [str(x) for x in KMeans(n_clusters=n_clusters, random_state=seed).fit(adata.obsm['CCST_pca']).predict(adata.obsm['CCST_pca'])]
-    mclust_R(adata, num_cluster=n_clusters)
+    # mclust_R(adata, num_cluster=n_clusters)
     
     label = LabelEncoder().fit_transform(adata.obs['cluster'])
     pred = LabelEncoder().fit_transform(adata.obs['kmeans'])
-    pred_mclust = LabelEncoder().fit_transform(adata.obs['mclust'])
+    # pred_mclust = LabelEncoder().fit_transform(adata.obs['mclust'])
     
     print('pred:', metrics.adjusted_rand_score(label, pred)) 
-    print('pred_clust:', metrics.adjusted_rand_score(label, pred_mclust)) 
-    sc.pl.spatial(adata, color=['cluster', 'kmeans', 'mclust'])
+    # print('pred_clust:', metrics.adjusted_rand_score(label, pred_mclust)) 
+    # sc.pl.spatial(adata, color=['cluster', 'kmeans', 'mclust'])
+
+    if (spot_size):
+        sc.pl.spatial(adata, color=['cluster', 'kmeans'], spot_size=spot_size)
+    else:
+        sc.pl.spatial(adata, color=['cluster', 'kmeans'])
+
+def get_slideseqv2_data():
+    adata = sq.datasets.slideseqv2(path=os.path.join('..', 'dataset', 'slideseqv2.h5ad'))
+
+    sc.pp.highly_variable_genes(adata, flavor="seurat_v3", n_top_genes=3000)
+    sc.pp.normalize_total(adata, target_sum=1e4)
+    sc.pp.log1p(adata)
+
+    cluster_num = len(set(adata.obs['cluster']))
+    print('>>> dataset size: {}, cluster: {}.'.format(adata.X.shape, cluster_num))
+    return adata, cluster_num

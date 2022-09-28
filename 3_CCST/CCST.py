@@ -72,7 +72,7 @@ def corruption(data):
 
 # def train_DGI(args, data_loader, in_channels):
 
-def train_DGI(data_loader, in_channels, hidden, epochs, lr, seed):
+def train_DGI(data_loader, in_channels, hidden, epochs, lr, seed, device):
     
     import random
     random.seed(seed)
@@ -80,8 +80,6 @@ def train_DGI(data_loader, in_channels, hidden, epochs, lr, seed):
     torch.cuda.manual_seed_all(seed)
     np.random.seed(seed)
 
-
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     DGI_model = DeepGraphInfomax(
         hidden_channels=hidden,
         encoder=Encoder(in_channels=in_channels, hidden_channels=hidden),

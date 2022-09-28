@@ -5,13 +5,8 @@ import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.neighbors import NearestNeighbors
 from torch_geometric.data import Data
-
-from gensim.models import word2vec
-import networkx as nx
-import random
-import time
-from tqdm import tqdm
 from torch_geometric.nn import Node2Vec
+from tqdm import tqdm
 
 def build_spatial_graph(adata, components, radius=None, knears=None):
     
@@ -40,7 +35,7 @@ def build_spatial_graph(adata, components, radius=None, knears=None):
     else:
         pca = adata.X.todense()
 
-    print('>>> The graph contains {} edges.'.format(len(edge_list[0])))
+    print('>>> The graph contains {} edges, average {} edges per node.'.format(len(edge_list[0]), len(edge_list[0]) / adata.X.shape[0]))
     
     data = Data(edge_index=torch.LongTensor(np.array([edge_list[0], edge_list[1]])), 
                 x=torch.FloatTensor(pca))
@@ -48,55 +43,22 @@ def build_spatial_graph(adata, components, radius=None, knears=None):
     print('>>> Building spatial graph success!')
     return data
 
-def random_walk(graph, walk_length, walk_times, seed):
-    random.seed(seed)
-    sentences = []
-    
-    for node in graph.nodes:
-        for _ in range(walk_times):
-            sentence = [node]
-            cur_node = node
-            for _ in range(walk_length - 1):
-                neighbors = []
-                for node in graph.neighbors(cur_node):
-                    if (node not in neighbors):
-                        neighbors.append(node)
-                if (0 == len(neighbors)):
-                    break
-                cur_node = neighbors[random.randint(0, len(neighbors) - 1)]
-                sentence.append(cur_node)
-            sentences.append(sentence)
-            
-    return sentences
-
-
-def build_feature_graph(adata, features, spatial_data, walk_length, walk_times, n_neighbors, seed=2022, epochs=200):
+def build_feature_graph(adata, features, spatial_data, 
+                        walk_length, walk_times, n_neighbors, 
+                        node2vec_p, node2vec_q,
+                        seed=2022, epochs=200,
+                        device='cuda' if torch.cuda.is_available() else 'cpu'):
     adata = adata[:, adata.var['highly_variable']]
     sc.pp.neighbors(adata, n_neighbors=n_neighbors)
     edge_list = np.nonzero(adata.obsp['distances'].todense())
-    
-    # graph = nx.Graph()
-    # for i in range(len(spatial_data.edge_index[0])):
-    #     graph.add_edge(int(spatial_data.edge_index[0][i]), 
-    #                    int(spatial_data.edge_index[1][i]))
-    # sentences = random_walk(graph, walk_length, walk_times, seed)
-    # print('>>> Random walk finished!')
-    
-    # start_time = time.time()
-    # word2vec_model = word2vec.Word2Vec(sentences, vector_size=features, sg=1, hs=0, 
-    #                                    negative=5, seed=seed, epochs=100, workers=12)
-    # x = word2vec_model.wv.vectors
-    # end_time = time.time()
 
-    # print('>>> Building features graph success! (word2vec time: {}min{}s)'.
-    #   format(int((end_time - start_time) // 60), int((end_time - start_time) % 60)))
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    np.random.seed(seed)
 
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    model = Node2Vec(torch.LongTensor(np.array([edge_list[0], edge_list[1]])), 
-                        embedding_dim=features, walk_length=walk_length,
-    # model = Node2Vec(spatial_data.edge_index, embedding_dim=features, walk_length=walk_length,
+    model = Node2Vec(spatial_data.edge_index, embedding_dim=features, walk_length=walk_length,
                      context_size=5, walks_per_node=walk_times,
-                     num_negative_samples=1, p=1, q=1).to(device)
+                     num_negative_samples=2, p=node2vec_p, q=node2vec_q).to(device)
 
     loader = model.loader(batch_size=128, shuffle=True)
     optimizer = torch.optim.Adam(list(model.parameters()), lr=1e-3)
