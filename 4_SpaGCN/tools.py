@@ -60,38 +60,6 @@ def train(adata, n_clusters, seed, l_preset=None):
     adata.obs["refined_pred"]=adata.obs["refined_pred"].astype('category')
     adata.obsm['SpaGCN'] = embed.cpu().detach().numpy()
 
-def get_dlpfc_data(id):
-    section_list = ['151507', '151508', '151509', '151510', '151669', '151670', 
-                    '151671', '151672', '151673', '151674', '151675', '151676']
-    section_id = section_list[id]
-
-    adata = sc.read_visium(path=os.path.join('..', 'dataset', 'DLPFC', section_id))
-    adata.var_names_make_unique()
-
-    Ann_df = pd.read_csv(os.path.join('..', 'dataset', 'DLPFC', section_id, 
-                                      'ground_truth.txt'), sep='\t', header=None, index_col=0)
-    Ann_df.columns = ['Ground Truth']
-    adata.obs['cluster'] = Ann_df.loc[adata.obs_names, 'Ground Truth']
-    
-    sc.pp.highly_variable_genes(adata, flavor="seurat_v3", n_top_genes=3000)
-    sc.pp.normalize_total(adata, target_sum=1e4)
-    sc.pp.log1p(adata)
-    
-    cluster_num = len(set(adata.obs['cluster'])) - 1
-    print('>>> dataset id: {}, size: {}, cluster: {}.'.format(section_id, adata.X.shape, cluster_num))
-    return adata, cluster_num
-
-def get_slideseqv2_data():
-    adata = sq.datasets.slideseqv2(path=os.path.join('..', 'dataset', 'slideseqv2.h5ad'))
-
-    sc.pp.highly_variable_genes(adata, flavor="seurat_v3", n_top_genes=3000)
-    sc.pp.normalize_total(adata, target_sum=1e4)
-    sc.pp.log1p(adata)
-
-    cluster_num = len(set(adata.obs['cluster']))
-    print('>>> dataset size: {}, cluster: {}.'.format(adata.X.shape, cluster_num))
-    return adata, cluster_num
-
 def evaluate(adata, n_clusters, seed=2022, spot_size=None):
     adata = mclust_R(adata, n_clusters, random_seed=seed)
     adata.obs['pred_kmeans'] = [str(x) for x in KMeans(n_clusters=n_clusters, random_state=seed).fit(adata.obsm['SpaGCN']).predict(adata.obsm['SpaGCN'])]

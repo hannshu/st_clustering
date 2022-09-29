@@ -14,12 +14,11 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch_geometric.nn import GCNConv, ChebConv, GATConv, DeepGraphInfomax, global_mean_pool, global_max_pool  # noqa
+from torch_geometric.nn import GCNConv, ChebConv, GATConv, DeepGraphInfomax, global_mean_pool, global_max_pool
 from torch_geometric.data import Data, DataLoader
 
 
 from tqdm import tqdm
-from utilities import build_graph
 
 
 def get_graph(adj, X):

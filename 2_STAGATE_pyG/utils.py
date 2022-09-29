@@ -15,20 +15,23 @@ def Transfer_pytorch_Data(adata):
     G_df['Cell1'] = G_df['Cell1'].map(cells_id_tran)
     G_df['Cell2'] = G_df['Cell2'].map(cells_id_tran)
 
-    # 生成邻接矩阵
-    G = sp.coo_matrix((np.ones(G_df.shape[0]), (G_df['Cell1'], G_df['Cell2'])), shape=(adata.n_obs, adata.n_obs))
-    G = G + sp.eye(G.shape[0])
+    # # 生成邻接矩阵
+    # G = sp.coo_matrix((np.ones(G_df.shape[0]), (G_df['Cell1'], G_df['Cell2'])), shape=(adata.n_obs, adata.n_obs))
+    # G = G + sp.eye(G.shape[0])
 
-    edgeList = np.nonzero(G)    # 记录所有边的集合
-    if type(adata.X) == np.ndarray:
-        data = Data(edge_index=torch.LongTensor(np.array(
-            [edgeList[0], edgeList[1]])), x=torch.FloatTensor(adata.X))  # .todense()
-    else:
-        # 生成适合torch使用的pyg类型，
-        # edge_index中保存了所有边边，结构为[[node1, node2, ...], [node1, node2, ...]] size=(2*edges)
-        # x保存了所有节点的基因表达信息，结构为[[features], [features], ...] size=(node*features)
-        data = Data(edge_index=torch.LongTensor(np.array([edgeList[0], edgeList[1]])),
-                        x=torch.FloatTensor(adata.X.todense()))  # .todense()
+    # edgeList = np.nonzero(G)    # 记录所有边的集合
+    # if type(adata.X) == np.ndarray:
+    #     data = Data(edge_index=torch.LongTensor(np.array(
+    #         [edgeList[0], edgeList[1]])), x=torch.FloatTensor(adata.X))  # .todense()
+    # else:
+    #     # 生成适合torch使用的pyg类型，
+    #     # edge_index中保存了所有边边，结构为[[node1, node2, ...], [node1, node2, ...]] size=(2*edges)
+    #     # x保存了所有节点的基因表达信息，结构为[[features], [features], ...] size=(node*features)
+    #     data = Data(edge_index=torch.LongTensor(np.array([edgeList[0], edgeList[1]])),
+    #                     x=torch.FloatTensor(adata.X.todense()))  # .todense()
+
+    data = Data(edge_index=torch.LongTensor(np.array([np.array(G_df['Cell1']), np.array(G_df['Cell2'])])),
+                x=torch.FloatTensor(adata.X.todense()))  # .todense()
     return data
 
 def Batch_Data(adata, num_batch_x, num_batch_y, spatial_key=['X', 'Y'], plot_Stats=False):
@@ -117,6 +120,13 @@ def Cal_Spatial_Net(adata, rad_cutoff=None, k_cutoff=None, model='Radius', verbo
         print('%.4f neighbors per cell on average.' %(Spatial_Net.shape[0]/adata.n_obs))
 
     adata.uns['Spatial_Net'] = Spatial_Net
+
+def build_Spatial_Net(adata):
+    spatial_data = pd.DataFrame(np.array(np.nonzero(adata.obsp['distances'])).T)
+    spatial_data.columns = ['Cell1', 'Cell2']
+
+    print('>>> graph contains {} edges'.format(spatial_data.shape[0]))
+    adata.uns['Spatial_Net'] = spatial_data
 
 
 def Cal_Spatial_Net_3D(adata, rad_cutoff_2D, rad_cutoff_Zaxis,
