@@ -5,19 +5,18 @@
 
 # 整理到的对空间转录组进行聚类分析的算法
 
-|    | model | journal | paper | status | tutorial | link | note  
-| -- | ----- | ------- | ----- | ------ | -------- | ---- | ---- 
-|1|Louvain|Journal of Statistical Mechanics: Theory and Experiment|[DOI](https://doi.org/10.1088/1742-5468/2008/10/P10008)|*|[tutorial](./1_ScanPy/train.ipynb)|[link](#louvain)|  
-|2|STAGATE|Nature Communications|[DOI](https://doi.org/10.1038/s41467-022-29439-6)|*|[tutorial](./2_STAGATE_pyG/train.ipynb)|[link](#stagate)|只有tf实现中可以使用alpha，torch实现中没有这个功能  
-|3|CCST|Nature Computational Science|[DOI](https://doi.org/10.1038/s43588-022-00266-5)|*|[tutorial](./3_CCST/train.ipynb)|[link](#ccst)|  
-|4|SpaGCN|Nature Methods|[DOI](https://doi.org/10.1038/s41592-021-01255-8)|*|[tutorial](./4_SpaGCN/train.ipynb)|[link](#spagcn)|算法中用到的组织学数据需要自行制作  
-|5|SEDR|-|[DOI](https://doi.org/10.21203/rs.3.rs-665505/v1)|NULL|[tutorial]()|[link](#sedr)|  
-|6|BayesSpace|Nature Biotechnology|[DOI](https://doi.org/10.1038/s41587-021-00935-2)|NULL|[tutorial]()|[link](#bayesspace)|  
-|7|stLearn|bioRxiv|[DOI](https://doi.org/10.1101/2020.05.31.125658)|NULL|[tutorial]()|[link](#stlearn)|  
-|8|Giotto|BMC Genome Biology|[DOI](https://doi.org/10.1186/s13059-021-02286-2)|NULL|[tutorial]()|[link](#giotto)|  
-|9|TransformerST|bioRxiv|[DOI](https://doi.org/10.1101/2022.08.11.503261)|NULL|[tutorial]()|[link](#transformerst)|  
-|10|FICT|Bioinformatics|[DOI](https://doi.org/10.1093/bioinformatics/btab704)|NULL|[tutorial]()|[link](#fict)|  
-|11|scGNN|Nature Communications|[DOI](https://doi.org/10.1038/s41467-021-22197-x)|NULL|[tutorial]()|[link](#scgnn)|  
+|    | model | published time | method | journal | paper | status | tutorial | link | note  
+| -- | ----- | -------------- | ------ | ------- | ----- | ------ | -------- | ---- | ---- 
+|1|Louvain|2008.7|community discovery|Journal of Statistical Mechanics: Theory and Experiment|[DOI](https://doi.org/10.1088/1742-5468/2008/10/P10008)|*|[tutorial](./1_ScanPy/train.ipynb)|[link](#louvain)|  
+|2|STAGATE|2022.4|autoencoder+GAT|Nature Communications|[DOI](https://doi.org/10.1038/s41467-022-29439-6)|*|[tutorial](./2_STAGATE_pyG/train.ipynb)|[link](#stagate)|只有tf实现中可以使用alpha，torch实现中没有这个功能  
+|3|CCST|2022.6|DGI(GCN)|Nature Computational Science|[DOI](https://doi.org/10.1038/s43588-022-00266-5)|*|[tutorial](./3_CCST/train.ipynb)|[link](#ccst)|  
+|4|SpaGCN|2021.10|GCN|Nature Methods|[DOI](https://doi.org/10.1038/s41592-021-01255-8)|*|[tutorial](./4_SpaGCN/train.ipynb)|[link](#spagcn)|算法中用到的组织学数据需要自行制作  
+|5|SEDR|||Research Square|[DOI](https://doi.org/10.21203/rs.3.rs-665505/v1)|NULL|[tutorial]()|[link](#sedr)|  
+|6|BayesSpace|2021.6|static|Nature Biotechnology|[DOI](https://doi.org/10.1038/s41587-021-00935-2)|NULL|[tutorial]()|[link](#bayesspace)|  
+|7|stLearn|||bioRxiv|[DOI](https://doi.org/10.1101/2020.05.31.125658)|NULL|[tutorial]()|[link](#stlearn)|  
+|8|Giotto|||BMC Genome Biology|[DOI](https://doi.org/10.1186/s13059-021-02286-2)|NULL|[tutorial]()|[link](#giotto)|  
+|9|TransformerST|||bioRxiv|[DOI](https://doi.org/10.1101/2022.08.11.503261)|NULL|[tutorial]()|[link](#transformerst)|  
+|10|FICT|2021.10|static(EM)|Bioinformatics|[DOI](https://doi.org/10.1093/bioinformatics/btab704)|NULL|[tutorial]()|[link](#fict)|  
 
 ## Louvain
 ![img](./1_ScanPy/Louvain.png)  
@@ -166,9 +165,6 @@ $$
   
 
 
-## scGNN
-
-
 # 目前整理到可以使用的数据集
 
 |    | name | source | paper | annotation | size  (cell/spot * gene) | note  
@@ -176,15 +172,17 @@ $$
 |1|MERFISH|squidpy|[DOI](https://doi.org/10.1126/science.aau5324)|*|73655*161|12 slices  
 |2|MIBI-TOF|squidpy|[DOI](https://doi.org/10.1101/2020.01.17.909796)|*|3309*36|3 slices  
 |3|SlideseqV2|squidpy|[DOI](https://doi.org/10.1038/s41587-020-0739-1)|*|41786*4000|mouse neocortex  
-|4|scRNA-seq mouse cortex|squidpy|[DOI](https://doi.org/10.1038/s41586-018-0654-5)|*|21697*36826|  
-|5|10x Visium (DLPFC dataset)|spatialLIBD|[DOI](https://doi.org/10.1186/s12864-022-08601-w)|*|approx. 3460*33538 each|12 slices  
+|4|scRNA-seq mouse cortex|squidpy|[DOI](https://doi.org/10.1038/s41586-018-0654-5)|*|21697*36826|simulated  
+|5|10x Visium (DLPFC dataset)|spatialLIBD|[DOI](https://doi.org/10.1186/s12864-022-08601-w)|*|approx. 4000*33538 each|12 slices  
 |6|10x Genomics Adult Mouse Brain Section 1 (Coronal)|10x Genomics|[10x Genomics](https://www.10xgenomics.com/resources/datasets/adult-mouse-brain-section-1-coronal-stains-dapi-anti-neu-n-1-standard-1-1-0)|-|2903*32285|  
 |7|Mouse Brain Serial Section 1 (Sagittal-Posterior)|10x Genomics|[10x Genomics](https://support.10xgenomics.com/spatial-gene-expression/datasets/1.0.0/V1_Mouse_Brain_Sagittal_Posterior)|-|3353*31053|
-|8|Slide-seqV2|BROAD INSTITUTE|[BROAD INSTITUTE](https://singlecell.broadinstitute.org/single_cell/study/SCP815/highly-sensitive-spatial-transcriptomics-at-near-cellular-resolution-with-slide-seqv2#study-summary)|-|21724*21220|mouse olfactory bulb  
+|8|Slide-seqV2|BROAD INSTITUTE|[BROAD INSTITUTE](https://singlecell.broadinstitute.org/single_cell/study/SCP815/highly-sensitive-spatial-transcriptomics-at-near-cellular-resolution-with-slide-seqv2#study-summary)|-|21724*21220|mouse olfactory bulb 
+|9|10x Genomics Visium H&E dataset|squidpy(10x Genomics)|[10x Genomics](https://support.10xgenomics.com/spatial-gene-expression/datasets/1.1.0/V1_Adult_Mouse_Brain)|*|2688*18078|coronal section of the mouse brain
+|10|10x Genomics Visium Fluorecent dataset|squidpy(10x Genomics)|[10x Genomics](https://support.10xgenomics.com/spatial-gene-expression/datasets/1.1.0/V1_Adult_Mouse_Brain_Coronal_Section_2)|*|2800*16562|
 
 ## squidpy pre-processed
 所有经过squidpy预处理的数据集均附带有手工标记，文件格式为```.h5ad```，位置信息保存在```adata.obsm['spatial']```中，手工标记信息一般保存在```adata.obs['Cluster']```中，squidpy中集成了内置的读取方法来读取数据集  
-- [MERFISH](https://ndownloader.figshare.com/files/28169379):  
+- [MERFISH](https://ndownloader.figshare.com/files/28169379):
 ```adata = sq.datasets.merfish(path=os.path.join('dataset', 'merfish3d.h5ad'))```  
 每个slice保存在```adata.obs['Bregma']```中，分别是```{-28.999999999999996, -24.0, -19.0, -14.000000000000002, -9.0, -4.0, 1.0, 6.0, 11.0, 16.0, 21.0, 26.0}```，手工标记的类别保存在```adata.obs['Cell_class']```中  
 - [MIBI-TOF](https://ndownloader.figshare.com/files/28241139):  
@@ -192,6 +190,8 @@ $$
 每个slice保存在```adata.obs['batch']```中，分别是```{'0', '1', '2'}```  
 - [SlideseqV2](https://ndownloader.figshare.com/files/28242783): ```adata = sq.datasets.slideseqv2(path=os.path.join('dataset', 'slideseqv2.h5ad'))```
 - [scRNA-seq mouse cortex](https://ndownloader.figshare.com/files/26404781): ```adata = sq.datasets.sc_mouse_cortex(path=os.path.join('dataset', 'sc_mouse_cortex.h5ad'))```
+- [10x Genomics Visium H&E dataset](https://ndownloader.figshare.com/files/26098397):  ```adata = sq.datasets.visium_hne_adata(path=os.path.join('dataset', 'visium_hne.h5ad'))```
+- [10x Genomics Visium Fluorecent dataset](https://ndownloader.figshare.com/files/26098391): ```adata = sq.datasets.visium_fluo_adata(path=os.path.join('dataset', 'visium_fluo.h5ad'))```
 
 ## DLPFC数据集
 DLPFC数据集是经过预处理的数据集，并包含有手工标注信息，文件格式为```.h5```，scanpy中集成有读取这种数据集的函数
@@ -207,14 +207,6 @@ Ann_df = pd.read_csv(os.path.join('dataset', 'DLPFC', section_id, 'ground_truth.
 Ann_df.columns = ['Ground Truth']
 adata.obs['Cluster'] = Ann_df.loc[adata.obs_names, 'Ground Truth']
 ```
-
-### 效果对比
-| method | embedding size | ARI-k_means | ARI-mclust | ARI-other_methods | note |
-| ------ | -------------- | ----------- | ---------- | ----------------- | ---- |
-|ScanPy(Louvain)|-|-|-|0.271, 0.268, 0.275, 0.278, 0.112, 0.050, 0.255, 0.232, 0.216, 0.271, 0.285, 0.227| 直接进行分类，没有embedding生成
-|STAGATE|30|0.359, 0.318, 0.448, 0.407, 0.252, 0.194, 0.345, 0.380, 0.284, 0.319, 0.359, 0.288 |0.584, 0.522, 0.472, 0.468, 0.494, 0.373, 0.590, 0.549, 0.527, 0.511, 0.438, 0.434 |-|
-|CCST|50|0.484, 0.453, 0.415, 0.454, 0.369, 0.334, 0.411, 0.447, 0.394, 0.314, 0.276, 0.302 |0.354, 0.386, 0.271, 0.502, 0.265, 0.311, 0.208, 0.449, 0.267, 0.354, 0.379, 0.352|-|
-|SpaGCN|50|0.387, 0.333, 0.377, 0.288, 0.043, 0.211, 0.467, 0.379, 0.453, 0.211, 0.221, 0.271| 0.424, 0.359, 0.442, 0.403, 0.206, 0.205, 0.509, 0.531, 0.508, 0.350, 0.461, 0.370|0.430, 0.361, 0.365, 0.402, 0.123, 0.168, 0.489, 0.476, 0.493, 0.232, 0.370, 0.299| 能生成embedding，但使用内部方法聚类(计算距离的公式与kMeans略有不同)
 
 ## 10x Genomic
 ``` python
