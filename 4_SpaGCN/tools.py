@@ -19,7 +19,7 @@ def train(adata, n_clusters, seed, l_preset=None):
     x_array = pos[0]
     y_array = pos[1]
 
-    adj = calculate_adj_matrix(pos[0], pos[1], histology=False)
+    adj = calculate_adj_matrix(x_array, y_array, histology=False)
     
     # 对features进行初始化
     prefilter_genes(adata,min_cells=3) # avoiding all genes are zeros
@@ -38,7 +38,7 @@ def train(adata, n_clusters, seed, l_preset=None):
     # 确定louvain算法需要的分辨率
     r_seed=t_seed=n_seed=seed
     #Seaech for suitable resolution
-    res=search_res(adata, adj, l, n_clusters, start=0.9, step=0.1, tol=5e-3, lr=0.05, max_epochs=20, r_seed=r_seed, t_seed=t_seed, n_seed=n_seed)
+    res=search_res(adata, adj, l, n_clusters, start=0.7, step=0.1, tol=5e-3, lr=0.05, max_epochs=20, r_seed=r_seed, t_seed=t_seed, n_seed=n_seed)
     
     # GCN
     clf=SpaGCN()
@@ -48,7 +48,7 @@ def train(adata, n_clusters, seed, l_preset=None):
     torch.manual_seed(t_seed)
     np.random.seed(n_seed)
     #Run
-    clf.train(adata,adj,init_spa=True,init="louvain",res=res, tol=5e-3, lr=0.05, max_epochs=1000)
+    clf.train(adata,adj,init_spa=True,init="louvain",res=res, tol=5e-3, lr=0.05, max_epochs=200)
     y_pred, _, embed=clf.predict()
     adata.obs["pred"]= y_pred
     adata.obs["pred"]=adata.obs["pred"].astype('category')
@@ -64,19 +64,23 @@ def evaluate(adata, n_clusters, seed=2022, spot_size=None):
     adata = mclust_R(adata, n_clusters, random_seed=seed)
     adata.obs['pred_kmeans'] = [str(x) for x in KMeans(n_clusters=n_clusters, random_state=seed).fit(adata.obsm['SpaGCN']).predict(adata.obsm['SpaGCN'])]
     
-    label = LabelEncoder().fit_transform(adata.obs['cluster'])
-    pred_mclust_embed = LabelEncoder().fit_transform(adata.obs['mclust'])
-    pred = LabelEncoder().fit_transform(adata.obs['pred'])
-    pred_kmeans = LabelEncoder().fit_transform(adata.obs['pred_kmeans'])
-    
+    obs_df = adata.obs.dropna()
+
+    label = LabelEncoder().fit_transform(obs_df['cluster'])
+    pred_mclust_embed = LabelEncoder().fit_transform(obs_df['mclust'])
+    pred = LabelEncoder().fit_transform(obs_df['pred'])
+    pred_kmeans = LabelEncoder().fit_transform(obs_df['pred_kmeans'])
+    pred_refine = LabelEncoder().fit_transform(obs_df["refined_pred"])
+
     print('pred_mclust:', metrics.adjusted_rand_score(label, pred_mclust_embed))
     print('pred:', metrics.adjusted_rand_score(label, pred))
     print('pred_kmeans:', metrics.adjusted_rand_score(label, pred_kmeans))
+    print('pred_refine:', metrics.adjusted_rand_score(label, pred_refine))
     
     if (spot_size):
-        sc.pl.spatial(adata, color=['cluster', 'mclust', 'pred', 'pred_kmeans'], spot_size=spot_size)
+        sc.pl.spatial(adata, color=['cluster', 'mclust', 'pred', 'pred_kmeans', 'refined_pred'], spot_size=spot_size)
     else:
-        sc.pl.spatial(adata, color=['cluster', 'mclust', 'pred', 'pred_kmeans'])
+        sc.pl.spatial(adata, color=['cluster', 'mclust', 'pred', 'pred_kmeans', 'refined_pred'])
 
 def mclust_R(adata, num_cluster, modelNames='EEE', used_obsm='SpaGCN', random_seed=2022):
     """\

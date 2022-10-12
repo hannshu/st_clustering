@@ -24,9 +24,11 @@ def evaluate(adata, n_clusters, seed=2022, spot_size=None, show=True, name='clus
     adata = mclust_R(adata, n_clusters) # 对embedding进行聚类，聚类结果保存在.obs['mclust']中
     adata.obs['kmeans'] = [str(x) for x in KMeans(n_clusters=n_clusters, random_state=seed).fit(adata.obsm['STAGATE']).predict(adata.obsm['STAGATE'])]
 
-    label = LabelEncoder().fit_transform(adata.obs[name])
-    pred = LabelEncoder().fit_transform(adata.obs['mclust'])
-    pred_kmeans = LabelEncoder().fit_transform(adata.obs['kmeans'])
+    obs_df = adata.obs.dropna()
+
+    label = LabelEncoder().fit_transform(obs_df[name])
+    pred = LabelEncoder().fit_transform(obs_df['mclust'])
+    pred_kmeans = LabelEncoder().fit_transform(obs_df['kmeans'])
     print('pred:', metrics.adjusted_rand_score(label, pred))    # 计算预测值与真实值之间的兰德系数
     print('pred_kmeans:', metrics.adjusted_rand_score(label, pred_kmeans))    # 计算预测值与真实值之间的兰德系数
 

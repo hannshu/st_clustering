@@ -7,13 +7,14 @@ from sklearn import metrics
 from sklearn.preprocessing import LabelEncoder 
 from sklearn.cluster import KMeans
 
-def train(adata, n_cluster, n_neighbors=6, lr=1e-2, seed=2022):
+def train(adata, n_cluster, n_neighbors=6, lr=1e-2, seed=2022, comp=30):
     sc.pp.highly_variable_genes(adata, flavor="seurat_v3", n_top_genes=3000)
     sc.pp.normalize_total(adata, target_sum=1e4)
     sc.pp.log1p(adata)
     pre_processed_adata = adata[:, adata.var['highly_variable']]
     
-    sc.pp.neighbors(pre_processed_adata, n_neighbors=n_neighbors, random_state=seed)
+    sc.tl.pca(pre_processed_adata, n_comps=comp, random_state=seed)
+    sc.pp.neighbors(pre_processed_adata, n_neighbors=n_neighbors, random_state=seed, use_rep='X_pca')
     resolution = 1.0
     latest_lr = lr
     cnt = 0
@@ -39,8 +40,9 @@ def train(adata, n_cluster, n_neighbors=6, lr=1e-2, seed=2022):
     adata.obs['louvain'] = pre_processed_adata.obs['louvain']
 
 def evaluate(adata, spot_size=None):
-    label = LabelEncoder().fit_transform(adata.obs['cluster'])
-    pred_louvain = LabelEncoder().fit_transform(adata.obs['louvain'])
+    obs_df = adata.obs.dropna()
+    label = LabelEncoder().fit_transform(obs_df['cluster'])
+    pred_louvain = LabelEncoder().fit_transform(obs_df['louvain'])
     print('>>> pred:', metrics.adjusted_rand_score(label, pred_louvain))
 
     if (spot_size):

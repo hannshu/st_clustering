@@ -30,7 +30,7 @@ def build_graph(adata, radius, lamb, build_graph):
                 x=torch.FloatTensor(adata[:, adata.var['highly_variable']].X.todense()), 
                 edge_attr=torch.FloatTensor(edge_weight))
 
-    print('>>> graph contains {} edges'.format(len(edge_list[0])))
+    print('>>> graph contains {} edges, average {} edges per node'.format(len(edge_list[0]), len(edge_list[0]) / adata.X.shape[0]))
     print(data.x.shape)
 
     return data

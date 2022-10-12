@@ -69,7 +69,7 @@ def train_STAGATE(adata, hidden_dims=[512, 30], n_epochs=1000, lr=0.001, key_add
         print('Size of Input: ', adata_Vars.shape)
     if 'Spatial_Net' not in adata.uns.keys():
         # 用来查找每个节点的最近邻的节点
-        Cal_Spatial_Net(adata_Vars, k_cutoff=6, model='KNN') 
+        Cal_Spatial_Net(adata_Vars, k_cutoff=6, model='KNN')
     #     raise ValueError("Spatial_Net is not existed! Run Cal_Spatial_Net first!")
 
     # 用来生成供torch使用的边集和点的特征集合

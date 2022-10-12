@@ -67,3 +67,18 @@ def get_sc_mouse_cortex_data(name):
     cluster_num = len(set(adata.obs[name]))
     print('>>> dataset name: sc_mouse_cortex, size: {}, cluster: {}.'.format(adata.X.shape, cluster_num))
     return adata, cluster_num
+
+def get_human_breast_cancer_data():
+    adata = sc.read_visium(path=os.path.join('..', 'dataset', 'Human_Breast_Cancer'))
+    adata.var_names_make_unique()
+    Ann_df = pd.read_csv(os.path.join('..', 'dataset', 'Human_Breast_Cancer', 
+                                      'metadata.csv'), sep=',', header=None, index_col=0)
+    Ann_df.columns = ['Ground Truth']
+    adata.obs['cluster'] = Ann_df.loc[adata.obs_names, 'Ground Truth']
+
+    sc.pp.highly_variable_genes(adata, flavor="seurat_v3", n_top_genes=3000)
+    sc.pp.normalize_total(adata, target_sum=1e4)
+    sc.pp.log1p(adata)
+
+    cluster_num = len(set(adata.obs['cluster']))
+    return adata, cluster_num
