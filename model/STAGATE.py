@@ -6,7 +6,7 @@ import torch.backends.cudnn as cudnn
 cudnn.deterministic = True
 cudnn.benchmark = True
 import torch.nn.functional as F
-from gat_conv import GATConv
+from .gat_conv import GATConv
 
 # from torch_geometric.nn import GATConv
 
