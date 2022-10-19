@@ -18,3 +18,4 @@ gensim
 # torch   # if you have cuda, you should install cuda first
 # torch_geometric # recommand to download .whl to install
 # rpy2    # not needed if donnt use mclust, and you should install r-base first
+# tensorflow_gpu    # for STAGATE
