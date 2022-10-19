@@ -1,7 +1,7 @@
 import scanpy as sc
 import numpy as np
 
-def train(adata, n_cluster, lr=1e-2, seed=2022, comp=30):
+def train(adata, n_cluster, lr=1e-2, seed=2022, comp=30, resolution=1.0):
     sc.pp.highly_variable_genes(adata, flavor="seurat_v3", n_top_genes=3000)
     sc.pp.normalize_total(adata, target_sum=1e4)
     sc.pp.log1p(adata)
@@ -9,7 +9,6 @@ def train(adata, n_cluster, lr=1e-2, seed=2022, comp=30):
     
     sc.tl.pca(pre_processed_adata, n_comps=comp, random_state=seed)
     sc.pp.neighbors(pre_processed_adata, random_state=seed, use_rep='X_pca')
-    resolution = 1.0
     latest_lr = lr
     cnt = 0
     while (True):

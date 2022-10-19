@@ -34,7 +34,7 @@ def get_graph(adj, X):
     edge_attr = torch.tensor(np.array(edge_weight), dtype=torch.float)
 
     graph_bags = []
-    graph = Data(x=torch.tensor(X, dtype=torch.float), edge_index=edge_index, edge_attr=edge_attr)  
+    graph = Data(x=torch.tensor(X.copy(), dtype=torch.float), edge_index=edge_index, edge_attr=edge_attr)  
     graph_bags.append(graph)
     return graph_bags
 
@@ -69,8 +69,6 @@ def corruption(data):
     x = data.x[torch.randperm(data.x.size(0))]
     return my_data(x, data.edge_index, data.edge_attr)
 
-# def train_DGI(args, data_loader, in_channels):
-
 def train_DGI(data_loader, in_channels, hidden, epochs, lr, seed, device):
     
     import random
@@ -85,40 +83,24 @@ def train_DGI(data_loader, in_channels, hidden, epochs, lr, seed, device):
         summary=lambda z, *args, **kwargs: torch.sigmoid(z.mean(dim=0)),
         corruption=corruption).to(device)
     DGI_optimizer = torch.optim.Adam(DGI_model.parameters(), lr=lr)
-    # if args.load:
-    if (0 == 1):
-        pass
 
-        # DGI_filename = args.model_path+'DGI_lambdaI_' + str(args.lambda_I) + '_epoch' + str(args.num_epoch) + '.pth.tar'
-        # DGI_model.load_state_dict(torch.load(DGI_filename))
-    else:
-        import datetime
-        start_time = datetime.datetime.now()
-        # for epoch in range(args.num_epoch):
+    import datetime
+    start_time = datetime.datetime.now()
 
-        for epoch in tqdm(range(epochs)):
-
-            DGI_model.train()
-            DGI_optimizer.zero_grad()
+    for _ in tqdm(range(epochs)):
+        DGI_model.train()
+        DGI_optimizer.zero_grad()
         
-            # DGI_all_loss = []
-            
-            for data in data_loader:
-                data = data.to(device)
-                pos_z, neg_z, summary = DGI_model(data=data)
+        for data in data_loader:
+            data = data.to(device)
+            pos_z, neg_z, summary = DGI_model(data=data)
+            DGI_loss = DGI_model.loss(pos_z, neg_z, summary)
+            DGI_loss.backward()
 
-                DGI_loss = DGI_model.loss(pos_z, neg_z, summary)
-                DGI_loss.backward()
-                # DGI_all_loss.append(DGI_loss.item())
-                DGI_optimizer.step()
+            DGI_optimizer.step()
 
-            # if ((epoch+1)%100) == 0:
-            #     print('Epoch: {:03d}, Loss: {:.4f}'.format(epoch+1, np.mean(DGI_all_loss)))
-
-        end_time = datetime.datetime.now()
-        # DGI_filename =  args.model_path+'DGI_lambdaI_' + str(args.lambda_I) + '_epoch' + str(args.num_epoch) + '.pth.tar'
-        # torch.save(DGI_model.state_dict(), DGI_filename)
-        print('Training time in seconds: ', (end_time-start_time).seconds)
+    end_time = datetime.datetime.now()
+    print('Training time in seconds: ', (end_time-start_time).seconds)
 
     result, _, _ = DGI_model(data)
     result = result.to('cpu').detach().numpy()
@@ -135,43 +117,6 @@ def PCA_process(X, nps):
     return X_PC
 
 
-def merge_cluser(X_embedding, cluster_labels):
-    count_dict, out_count_dict = {}, {}
-    for cluster in cluster_labels:
-        count_dict[cluster] = count_dict.get(cluster, 0) + 1
-    clusters = count_dict.keys()
-    n_clusters = len(clusters)
-    for cluster in clusters: 
-        out_count_dict[cluster] = count_dict[cluster] 
-    for cluster in clusters: 
-        cur_n = count_dict[cluster]
-        if cur_n <=3:
-            min_dis = 1000
-            merge_to = cluster
-            center_cluster = X_embedding[cluster_labels==cluster].mean(0)
-            for cluster_2 in clusters:
-                if cluster_2 == cluster:
-                    continue
-                center_cluster_2 = X_embedding[cluster_labels==cluster_2].mean(0)
-                dist = np.linalg.norm(center_cluster - center_cluster_2)
-                if dist < min_dis:
-                    min_dis = dist
-                    merge_to = cluster_2
-
-            cluster_labels[cluster_labels==cluster] = merge_to
-            print('Merge group', cluster, 'to group', merge_to, 'with', cur_n, 'samples')
-            out_count_dict[cluster] = 0
-            out_count_dict[merge_to] += cur_n
-            if cluster < n_clusters-1:
-                cluster_labels[cluster_labels==n_clusters-1] = cluster
-                print('Group', n_clusters-1, 'is renamed to group', cluster)
-                out_count_dict[cluster] = out_count_dict[n_clusters-1]
-                del out_count_dict[n_clusters-1]
-            print(out_count_dict)
-
-    return cluster_labels
-
-
 from sklearn.cluster import KMeans, DBSCAN, AffinityPropagation
 def Kmeans_cluster(X_embedding, n_clusters, merge=False):
     cluster_model = KMeans(n_clusters=n_clusters, init='k-means++', n_init=100, max_iter=1000, tol=1e-6)
@@ -184,21 +129,4 @@ def Kmeans_cluster(X_embedding, n_clusters, merge=False):
     score = metrics.silhouette_score(X_embedding, cluster_labels, metric='euclidean')
     
     return cluster_labels, score
-
-# def Umap(args, X, label, n_clusters, score):
-
-def Umap(X, label, n_clusters, score, seed):
-    import umap
-    reducer = umap.UMAP(random_state=seed)
-    embedding = reducer.fit_transform(X)
-
-    plt.scatter(embedding[:, 0], embedding[:, 1], c=label, cmap='Spectral', s=20)
-    plt.gca().set_aspect('equal', 'datalim')
-    plt.colorbar(boundaries=np.arange(n_clusters+1)-0.5).set_ticks(np.arange(n_clusters))
-    plt.title('UMAP projection')
-    if score:
-        plt.text(0.0, 0.0, score, fontdict={'size':'16','color':'black'},  transform = plt.gca().transAxes)
-    # plt.savefig(args.result_path + '/Umap.jpg')
-    plt.show()
-    plt.close()
 
