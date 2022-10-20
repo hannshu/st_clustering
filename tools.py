@@ -40,7 +40,7 @@ def louvain(adata, n_neighbors, use_rep, result_name, resolution, seed=2022):
     adata.obs[result_name] = pre_processed_adata.obs['louvain']
 
 
-def evaluate(adata, n_clusters, name_list=None, label_name='cluster', test_item=[True, True, True], pred_list=None, louvain_neighbors=8, louvain_resolution=0.8, seed=2022):
+def evaluate(adata, n_clusters=None, name_list=None, label_name='cluster', test_item=[True, True, True], pred_list=None, louvain_neighbors=8, louvain_resolution=0.8, seed=2022, show=False):
     pred_name_list = []
 
     if (name_list):
@@ -67,7 +67,8 @@ def evaluate(adata, n_clusters, name_list=None, label_name='cluster', test_item=
     label = LabelEncoder().fit_transform(obs_df[label_name])
     for item in pred_name_list:
         pred = LabelEncoder().fit_transform(obs_df[item])
-        print('>>> {}: {}'.format(item, metrics.adjusted_rand_score(label, pred)))
+        print('>>> %s: %.4f' % (item, metrics.adjusted_rand_score(label, pred) * 100))
     
     # display
-    sc.pl.spatial(adata, color=['cluster']+pred_name_list)
+    if (show):
+        sc.pl.spatial(adata, color=['cluster']+pred_name_list)
