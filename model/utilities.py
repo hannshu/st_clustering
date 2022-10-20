@@ -1,20 +1,26 @@
+import os
+import numpy as np
 import pandas as pd
 import scanpy as sc
-import torch
-import numpy as np
+
 from sklearn.decomposition import PCA
 from sklearn.neighbors import NearestNeighbors
+from sklearn.preprocessing import LabelEncoder 
+
+import torch
 from torch_geometric.data import Data
 from torch_geometric.nn import Node2Vec
+
 from tqdm import tqdm
-from sklearn.preprocessing import LabelEncoder 
+
 
 def build_spatial_graph(adata, components, radius=None, knears=None):
     assert (None == radius and knears) or (radius and None == knears)
     
+    adata = adata[:, adata.var['highly_variable']]
     coor = pd.DataFrame(adata.obsm['spatial'])  
     coor.index = adata.obs.index
-    coor.columns = ['row', 'ecol']
+    coor.columns = ['row', 'col']
 
     if (radius):
         nbrs = NearestNeighbors(radius=radius).fit(coor)
@@ -42,25 +48,29 @@ def build_spatial_graph(adata, components, radius=None, knears=None):
     print('>>> Building spatial graph success!')
     return data
 
-def build_feature_graph(adata, features, spatial_edge_index, 
-                        walk_length, walk_times, n_neighbors, 
-                        node2vec_p, node2vec_q,
-                        seed=2022, epochs=200,
-                        device='cuda' if torch.cuda.is_available() else 'cpu'):
-    adata = adata[:, adata.var['highly_variable']]
-    sc.pp.neighbors(adata, n_neighbors=n_neighbors, random_state=seed)
-    edge_list = np.nonzero(adata.obsp['distances'].todense())
 
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
-    np.random.seed(seed)
+def build_feature_graph(features, spatial_edge_index, 
+                        walk_length, walk_times,  
+                        node2vec_p, node2vec_q,
+                        seed=2022, epochs=200, lr=1e-3,
+                        device='cuda' if torch.cuda.is_available() else 'cpu'):
+
+    # SEED=seed
+    # os.environ['PYTHONHASHSEED'] = str(seed)
+    # np.random.seed(SEED)
+    # torch.manual_seed(SEED)
+    # torch.cuda.manual_seed(SEED)
+    # torch.cuda.manual_seed_all(SEED)
+    # torch.backends.cudnn.benchmark = False
+    # torch.backends.cudnn.deterministic = True
+    # # torch.backends.cudnn.enabled = False
 
     model = Node2Vec(spatial_edge_index, embedding_dim=features, walk_length=walk_length,
                      context_size=5, walks_per_node=walk_times,
                      num_negative_samples=2, p=node2vec_p, q=node2vec_q).to(device)
 
-    loader = model.loader(batch_size=128, shuffle=True)
-    optimizer = torch.optim.Adam(list(model.parameters()), lr=1e-3)
+    loader = model.loader(batch_size=128)
+    optimizer = torch.optim.Adam(list(model.parameters()), lr=lr)
 
     model.train()
     for _ in tqdm(range(epochs), desc='>>> node2vec'):
@@ -74,25 +84,32 @@ def build_feature_graph(adata, features, spatial_edge_index,
     with torch.no_grad():    
         x = model().cpu().detach().numpy()
     
-    data = Data(edge_index=torch.LongTensor(np.array(edge_list)),
-                x=torch.FloatTensor(x))
+    data = Data(x=torch.FloatTensor(x))
 
     return data
 
 
-def louvain_modify(adata, resolution, edges, seed):
+def louvain_modify(adata, resolution, edges, seed=2022, show=False):
+    adata = adata[:, adata.var['highly_variable']]
     sc.pp.neighbors(adata, random_state=seed)
     sc.tl.louvain(adata, resolution=resolution, key_added='pre_trained_louvain_label', random_state=seed)
-    adata.obs['pre_trained_louvain_label'] = LabelEncoder().fit_transform(adata.obs['pre_trained_louvain_label'])
-    print('>>> finish louvain, begin to purne graph')
+    adata.obs['pre_trained_louvain_label'] = [str(x) for x in LabelEncoder().fit_transform(adata.obs['pre_trained_louvain_label'])]
+    print('>>> finish louvain, begin to prune graph')
 
-    edge_index = [[], []]
-    for item in tqdm(edges.T, desc='>>> purning graph'):
-        if (adata[int(item[0])].obs['pre_trained_louvain_label'].item() == adata[int(item[1])].obs['pre_trained_louvain_label'].item()):
-            edge_index[0].append(int(item[0]))
-            edge_index[1].append(int(item[1]))
+    if (show):
+        sc.pl.spatial(adata, color=['pre_trained_louvain_label'])
+
+    label = dict(zip(range(adata.X.shape[0]), adata.obs['pre_trained_louvain_label']))
+    df = pd.DataFrame(edges.T)
+    df.columns = ['node1', 'node2']
+
+    df['node1_label'] = df['node1'].map(label)
+    df['node2_label'] = df['node2'].map(label)
+
+    new_df = df[df['node1_label'] == df['node2_label']]
+    edge_index = [np.array(new_df['node1']), np.array(new_df['node2'])]
     
-    print('>>> Modified graph contains {} edges, average {} edges per node.'.format(len(edge_index[0]), len(edge_index[0]) / adata.X.shape[0]))
+    print('>>> pruned graph contains {} edges, average {} edges per node.'.format(len(edge_index[0]), len(edge_index[0]) / adata.X.shape[0]))
 
     return torch.LongTensor(np.array(edge_index))
 
