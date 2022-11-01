@@ -55,16 +55,6 @@ def build_feature_graph(features, spatial_edge_index,
                         seed=2022, epochs=200, lr=1e-3,
                         device='cuda' if torch.cuda.is_available() else 'cpu'):
 
-    # SEED=seed
-    # os.environ['PYTHONHASHSEED'] = str(seed)
-    # np.random.seed(SEED)
-    # torch.manual_seed(SEED)
-    # torch.cuda.manual_seed(SEED)
-    # torch.cuda.manual_seed_all(SEED)
-    # torch.backends.cudnn.benchmark = False
-    # torch.backends.cudnn.deterministic = True
-    # # torch.backends.cudnn.enabled = False
-
     model = Node2Vec(spatial_edge_index, embedding_dim=features, walk_length=walk_length,
                      context_size=5, walks_per_node=walk_times,
                      num_negative_samples=2, p=node2vec_p, q=node2vec_q).to(device)
