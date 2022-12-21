@@ -8,6 +8,8 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import LabelEncoder 
 
 import torch
+import torch.nn as nn
+import torch.nn.functional as F
 from torch_geometric.data import Data
 from torch_geometric.nn import Node2Vec
 
@@ -59,7 +61,7 @@ def build_feature_graph(features, spatial_edge_index,
                      context_size=5, walks_per_node=walk_times,
                      num_negative_samples=2, p=node2vec_p, q=node2vec_q).to(device)
 
-    loader = model.loader(batch_size=128)
+    loader = model.loader(batch_size=128, num_wokers=0)
     optimizer = torch.optim.Adam(list(model.parameters()), lr=lr)
 
     model.train()
@@ -102,5 +104,4 @@ def louvain_modify(adata, resolution, edges, seed=2022, show=False):
     print('>>> pruned graph contains {} edges, average {} edges per node.'.format(len(edge_index[0]), len(edge_index[0]) / adata.X.shape[0]))
 
     return torch.LongTensor(np.array(edge_index))
-
 

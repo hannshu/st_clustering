@@ -23,7 +23,6 @@ def train(adata, radius=None, knears=None, components_spatial=3000,
     torch.cuda.manual_seed_all(SEED)
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
-    # torch.backends.cudnn.enabled = False
 
     data_spatial = build_spatial_graph(adata, components_spatial, radius, knears)
     if (louvain_resolution):
