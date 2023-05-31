@@ -1,0 +1,3 @@
+[submodule "st_datasets"]
+	path = st_datasets
+	url = https://github.com/hannshu/st_datasets.git

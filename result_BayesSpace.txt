@@ -1,0 +1,161 @@
+> source('test_BayesSpace.R')
+载入需要的程辑包：SingleCellExperiment
+载入需要的程辑包：SummarizedExperiment
+载入需要的程辑包：MatrixGenerics
+载入需要的程辑包：matrixStats
+
+载入程辑包：‘MatrixGenerics’
+
+The following objects are masked from ‘package:matrixStats’:
+
+    colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
+    colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
+    colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
+    colMads, colMaxs, colMeans2, colMedians, colMins,
+    colOrderStats, colProds, colQuantiles, colRanges, colRanks,
+    colSdDiffs, colSds, colSums2, colTabulates, colVarDiffs,
+    colVars, colWeightedMads, colWeightedMeans,
+    colWeightedMedians, colWeightedSds, colWeightedVars, rowAlls,
+    rowAnyNAs, rowAnys, rowAvgsPerColSet, rowCollapse, rowCounts,
+    rowCummaxs, rowCummins, rowCumprods, rowCumsums, rowDiffs,
+    rowIQRDiffs, rowIQRs, rowLogSumExps, rowMadDiffs, rowMads,
+    rowMaxs, rowMeans2, rowMedians, rowMins, rowOrderStats,
+    rowProds, rowQuantiles, rowRanges, rowRanks, rowSdDiffs,
+    rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
+    rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
+    rowWeightedSds, rowWeightedVars
+
+载入需要的程辑包：GenomicRanges
+载入需要的程辑包：stats4
+载入需要的程辑包：BiocGenerics
+
+载入程辑包：‘BiocGenerics’
+
+The following objects are masked from ‘package:stats’:
+
+    IQR, mad, sd, var, xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, aperm, append, as.data.frame, basename, cbind,
+    colnames, dirname, do.call, duplicated, eval, evalq, Filter,
+    Find, get, grep, grepl, intersect, is.unsorted, lapply, Map,
+    mapply, match, mget, order, paste, pmax, pmax.int, pmin,
+    pmin.int, Position, rank, rbind, Reduce, rownames, sapply,
+    setdiff, sort, table, tapply, union, unique, unsplit,
+    which.max, which.min
+
+载入需要的程辑包：S4Vectors
+
+载入程辑包：‘S4Vectors’
+
+The following object is masked from ‘package:utils’:
+
+    findMatches
+
+The following objects are masked from ‘package:base’:
+
+    expand.grid, I, unname
+
+载入需要的程辑包：IRanges
+
+载入程辑包：‘IRanges’
+
+The following object is masked from ‘package:grDevices’:
+
+    windows
+
+载入需要的程辑包：GenomeInfoDb
+载入需要的程辑包：Biobase
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+
+载入程辑包：‘Biobase’
+
+The following object is masked from ‘package:MatrixGenerics’:
+
+    rowMedians
+
+The following objects are masked from ‘package:matrixStats’:
+
+    anyMissing, rowMedians
+
+
+载入程辑包：‘dplyr’
+
+The following object is masked from ‘package:Biobase’:
+
+    combine
+
+The following objects are masked from ‘package:GenomicRanges’:
+
+    intersect, setdiff, union
+
+The following object is masked from ‘package:GenomeInfoDb’:
+
+    intersect
+
+The following objects are masked from ‘package:IRanges’:
+
+    collapse, desc, intersect, setdiff, slice, union
+
+The following objects are masked from ‘package:S4Vectors’:
+
+    first, intersect, rename, setdiff, setequal, union
+
+The following objects are masked from ‘package:BiocGenerics’:
+
+    combine, intersect, setdiff, union
+
+The following object is masked from ‘package:matrixStats’:
+
+    count
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Neighbors were identified for 4226 out of 4226 spots.
+Fitting model...
+Calculating labels using iterations 1000 through 50000.
+Neighbors were identified for 4381 out of 4384 spots.
+Fitting model...
+Calculating labels using iterations 1000 through 50000.
+Neighbors were identified for 4789 out of 4789 spots.
+Fitting model...
+Calculating labels using iterations 1000 through 50000.
+Neighbors were identified for 4634 out of 4634 spots.
+Fitting model...
+Calculating labels using iterations 1000 through 50000.
+Neighbors were identified for 3658 out of 3661 spots.
+Fitting model...
+Calculating labels using iterations 1000 through 50000.
+Neighbors were identified for 3495 out of 3498 spots.
+Fitting model...
+Calculating labels using iterations 1000 through 50000.
+Neighbors were identified for 4110 out of 4110 spots.
+Fitting model...
+Calculating labels using iterations 1000 through 50000.
+Neighbors were identified for 4015 out of 4015 spots.
+Fitting model...
+Calculating labels using iterations 1000 through 50000.
+Neighbors were identified for 3638 out of 3639 spots.
+Fitting model...
+Calculating labels using iterations 1000 through 50000.
+Neighbors were identified for 3670 out of 3673 spots.
+Fitting model...
+Calculating labels using iterations 1000 through 50000.
+Neighbors were identified for 3586 out of 3592 spots.
+Fitting model...
+Calculating labels using iterations 1000 through 50000.
+Neighbors were identified for 3456 out of 3460 spots.
+Fitting model...
+Calculating labels using iterations 1000 through 50000.
